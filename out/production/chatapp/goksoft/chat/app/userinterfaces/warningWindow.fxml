@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="122.0" prefWidth="357.0" styleClass="warning-window" stylesheets="@../stylesheets/style-sheet.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="goksoft.chat.app.WarningWindowController">
+   <children>
+      <Label fx:id="messageLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="39.0" layoutY="29.0" prefHeight="63.0" prefWidth="279.0" text="UYARI METNİ!" textAlignment="CENTER" wrapText="true">
+         <font>
+            <Font name="Segoe UI" size="16.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

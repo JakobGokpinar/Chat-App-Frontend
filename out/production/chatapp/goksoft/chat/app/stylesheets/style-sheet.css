@@ -1,0 +1,46 @@
+.add-attachment-icon, .microphone-icon, .add-friend-icon, .mailbox-icon, .video-icon, .voice-icon{
+    -fx-background-repeat: stretch;
+    -fx-background-size: 26 26;
+}
+
+.background{
+    -fx-background-image: url("../images/background.jpg");
+    -fx-background-size: 600 450;
+    -fx-background-position: center center;
+}
+
+.warning-window, .contact-panel-background{
+    -fx-background: linear-gradient( #ffaa00, #ff6f00);
+}
+
+.add-attachment-icon{
+    -fx-background-image: url("../images/attachment.png");
+    -fx-background-size: 32 32;
+}
+
+.microphone-icon{
+    -fx-background-image: url("../images/microphone.png");
+    -fx-background-size: 32 32;
+}
+
+.add-friend-icon{
+    -fx-background-image: url("../images/add-friend.png");
+    -fx-background-size: 24 24;
+}
+
+.mailbox-icon{
+    -fx-background-image: url("../images/mailbox.png");
+}
+
+.video-icon{
+    -fx-background-image: url("../images/video-call.png");
+    -fx-background-size: 28 28;
+}
+
+.voice-icon{
+    -fx-background-image: url("../images/voice-call.png");
+}
+
+.split-pane *.split-pane-divider {
+    -fx-padding: 0 1 0 1;
+}
