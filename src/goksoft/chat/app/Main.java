@@ -16,6 +16,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        System.out.println("Chat app on active");
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("userinterfaces/login.fxml"));
         Parent root = loader.load();
