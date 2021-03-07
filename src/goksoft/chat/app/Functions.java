@@ -1,5 +1,10 @@
 package goksoft.chat.app;
 
+
+//File is not used right now!
+
+
+
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;

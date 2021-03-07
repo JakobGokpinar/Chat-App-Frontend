@@ -29,7 +29,6 @@ public class RegisterController{
     @FXML
     private CheckBox showPasswordsButton;
 
-    Functions functions = new Functions(null,null,null,null);
     public void changeSceneToLogin(ActionEvent event){
         try {
             Parent loginRoot = FXMLLoader.load(getClass().getResource("userinterfaces/login.fxml"));
@@ -83,12 +82,23 @@ public class RegisterController{
             Function2.warningMessage(warning);
             return;
         }
-        if(!functions.registerNewUser(usernameField.getText(),password1Field.getText())){
-            String warning = "An error occurred!";
-            Function2.warningMessage(warning);
+
+        String name = ServerFunctions.encodeURL(usernameField.getText());
+        String pass = ServerFunctions.encodeURL(password1Field.getText());
+        String response = "";
+        try{
+            response = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/register.php", "username=" + name + "&password=" + pass);
+            System.out.println(response);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        else {
+
+        if(response.equals("register successful")){
             String warning = "Registration successful!";
+            Function2.warningMessage(warning);
+
+        } else {
+            String warning = "An error occurred! Could not complete your registration!";
             Function2.warningMessage(warning);
         }
 

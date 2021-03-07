@@ -11,22 +11,24 @@ public class ServerFunctions {
 
     static String cookie = null;
 
+    //The server URL to which all the server requests will be sent.
     static final String serverURL =
             "https://calm-mountain-05477.herokuapp.com/"
-           // "http://localhost/"
+            //"http://localhost/"
             //"http://goksoft.tk/GokSoft%20Chat%20App%20Background"
+            ;
 
-                                                            ;
+    //Makes a string more proper and secure for URLs.
     static String encodeURL(String rawString){
         try {
             return URLEncoder.encode(rawString, StandardCharsets.UTF_8.toString());
-        }
-        catch (Exception e){
+        } catch (Exception e){
             e.printStackTrace();
             return "Error";
         }
     }
 
+    //Sends requests to server and returns its response.
     static String HTMLRequestBytes(String URL, byte[] bytes, String type) throws Exception{
         StringBuilder output = new StringBuilder("");
         String boundary =  "*****";
@@ -60,7 +62,7 @@ public class ServerFunctions {
         return output.toString();
     }
 
-
+    //Function for changing the profile photo.
     static String FILERequest(String URL, File file, String name) throws Exception{
         String attachmentName = name;
         String attachmentFileName = file.getName();
@@ -85,6 +87,7 @@ public class ServerFunctions {
         return HTMLRequestBytes(URL, stream.toByteArray(),"tip");
     }
 
+    //Function for sending requests to an exact URL with string-typed parameters and returns the response from server.
     static String HTMLRequest(String URL, String params) throws Exception{
 
         return HTMLRequestBytes(URL, params.getBytes(),"");

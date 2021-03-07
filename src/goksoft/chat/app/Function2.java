@@ -61,8 +61,8 @@ public class Function2 {
     public static TextField messageField;
     public static ListView<String> listView;
     public static ChoiceBox<String> languageChoiceBox;
-    public static String currentFriend;
-    public static BorderPane currentPane;
+    public static String currentFriend; //Chatted friend
+    public static BorderPane currentPane; //Chatted friend's pane
     public static ArrayList<String> friendsNameList;
     public static List<Object> friendArray;
     public static Label noFriendLabel;
@@ -72,6 +72,7 @@ public class Function2 {
 
     public static int currentTimer;
 
+    //Constructor of the Function2 class
     public Function2(BorderPane chatBorderPane, BorderPane settingsBorderPane, HBox operationsHBox, ScrollPane friendScrollPane,VBox friendSection, VBox mailboxSection, VBox addFriendSection,
                      VBox friendsVBox, VBox notificationVBox, VBox usersVBox,VBox settingsTopVBox, TextField searchUserField,TextField searchFriendField, Circle profilePhoto, Circle settingsButton,
                      Circle chatFriendProfilePhoto, Label chatFriendName, TextField messageField,
@@ -115,26 +116,30 @@ public class Function2 {
         Function2.currentFriend = friendName;
         Function2.currentPane = pane;
 
-        final String cur2 = ServerFunctions.encodeURL(currentFriend);
+        final String curFriend = ServerFunctions.encodeURL(currentFriend);
         Thread thread = new Thread(()-> {
-        currentTimer = (int) (Math.random() * 1000);
+            currentTimer = (int) (Math.random() * 1000);
             int selv = currentTimer;
-            while(selv == currentTimer) {
-                try {
-                    String cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/checkNotif.php", "chatter=" + cur2);
-                    Thread.sleep(1000);
-                    System.out.println("checknotif: " + cevap);
-                    if (!cevap.equals("0"))
-                        Platform.runLater(Function2::getMessages);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                while(selv == currentTimer) {
+                    try {
+                        /*Get notification count from the server. If count is more than 0, it means it has been sent a message from opponent side.
+                        Get all messages.*/
+
+                        String cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/checkNotif.php", "chatter=" + curFriend);
+                        Thread.sleep(1000);
+                        System.out.println("checknotif: " + cevap);
+                        if (!cevap.equals("0"))
+                            Platform.runLater(Function2::getMessages);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
         });
         thread.start();
         Function2.chatBorderPane.getScene().getWindow().setOnCloseRequest(e -> System.exit(0));
     }
 
+    //Show no match labels.
     public static void checkNoResult(String string,Label label){
         if (string.equals("[]")){
             System.out.println("empty");
@@ -147,20 +152,23 @@ public class Function2 {
         }
     }
 
+    //Get logged in user's profile photo
     public static void getProfilePhoto(boolean mouseEvent){
         final String imageName = ServerFunctions.encodeURL(LoginController.loggedUser);
         Thread thread = new Thread(() -> {
             try {
+                //Get the image from server and convert it to BufferedImage
                 BufferedImage image = ImageIO.read(new URL(ServerFunctions.serverURL + "/getProfilePhoto.php?username=" + imageName));
                 Image imagefx = SwingFXUtils.toFXImage(image, null);
 
                 Platform.runLater(() -> {
-                    if (imagefx.isError()){
+                    if (imagefx.isError()){ //Fill profile photo with blue if image has error
                         profilePhoto.setFill(Color.DODGERBLUE);
                     } else {
                         profilePhoto.setFill(new ImagePattern(imagefx));
-                        settingsButton.setFill(new ImagePattern(imagefx));
+                        settingsButton.setFill(new ImagePattern(imagefx)); //Set image into the circle at bottom-left.
                     }
+                    //Fill profile photo with black when mouseEvent is true
                     if (mouseEvent){
                         profilePhoto.setFill(Color.BLACK);
                         Tooltip.install(
@@ -612,14 +620,17 @@ public class Function2 {
         return hBox;
     }
 
+    //Open or close a spesific section with animation.
     public static void openAndCloseSections(boolean value, VBox vBox){
-        Stage currentStage = (Stage) Stage.getWindows().get(0);
+        Stage currentStage = (Stage) Stage.getWindows().get(0); //Get current stage
 
         if(!value){
-            Timeline timeline = new Timeline();
+            Timeline timeline = new Timeline(); //Create timeline for animation.
+            //Close all three sections.
             friendSection.setManaged(false);
             mailboxSection.setManaged(false);
             addFriendSection.setManaged(false);
+            //Open only the spesificied section.
             vBox.setManaged(true); vBox.setVisible(true);
             vBox.translateYProperty().set(addFriendSection.getHeight());
             KeyValue kv  = new KeyValue(vBox.translateYProperty(),0, Interpolator.EASE_IN);
@@ -642,44 +653,18 @@ public class Function2 {
             });
             timeline.play();
         } else{
+            //Close add friend section and mailbox section, open friend section.
             currentStage.setTitle("Chat");
             vBox.setVisible(false);
             vBox.setManaged(false);
             friendSection.setVisible(true);
             friendSection.setManaged(true);
         }
-
-
-
-
-        /*Platform.runLater(() -> {
-            if (!value){
-                friendSection.setVisible(false); friendSection.setManaged(false);
-                mailboxSection.setVisible(false); mailboxSection.setManaged(false);
-                addFriendSection.setVisible(false); addFriendSection.setManaged(false);
-                vBox.setVisible(true); vBox.setManaged(true);
-                switch (vBox.getId()){
-                    case "mailboxSection":
-                        currentStage.setTitle("Mailbox");
-                        break;
-                    case "addFriendSection":
-                        currentStage.setTitle("Add Friend");
-                        break;
-                    default:
-                        currentStage.setTitle("Chat");
-                        break;
-                }
-            } else {
-                vBox.setVisible(false); vBox.setManaged(false);
-                getFriends();
-                friendSection.setVisible(true); friendSection.setManaged(true);
-                currentStage.setTitle("Chat");
-            }
-        });*/
     }
 
     public static void logOff(MouseEvent event){
         try{
+            //Load login scene with a new stage and hide the former one.
             FXMLLoader loader = new FXMLLoader(Function2.class.getResource("userinterfaces/login.fxml"));
             Parent loginPanel = loader.load();
             Scene scene = new Scene(loginPanel);
@@ -692,6 +677,7 @@ public class Function2 {
             newWindow.setTitle("Login");
             newWindow.show();
 
+            //Clear stored username and password from settings.txt
             File file = new File(System.getProperty("user.home") + "/settings.txt");
             if(file.exists()){
                 FileWriter writer = new FileWriter(file);
@@ -702,6 +688,8 @@ public class Function2 {
             e.printStackTrace();
         }
     }
+
+    //Load the contact panel
     public static void contactUs(MouseEvent event){
         try {
             FXMLLoader loader = new FXMLLoader(Function2.class.getResource("userinterfaces/ContactPanel.fxml"));
@@ -718,6 +706,7 @@ public class Function2 {
         }
     }
 
+    //Load warning window scene with a given text
     public static void warningMessage(String text){
         try {
             FXMLLoader loader = new FXMLLoader(Function2.class.getResource("userinterfaces/warningWindow.fxml"));

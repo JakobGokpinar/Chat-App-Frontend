@@ -16,15 +16,16 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        System.out.println("Chat app on active");
+        System.out.println("Chat app is active");
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("userinterfaces/login.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("userinterfaces/login.fxml")); //Load login view.
         Parent root = loader.load();
         LoginController loginController = loader.getController();
 
         if(loginController.isRememberMe()){
             loginController.rememberMeFill();
         }
+
         Scene scene = new Scene(root);
 
         primaryStage.setScene(scene);

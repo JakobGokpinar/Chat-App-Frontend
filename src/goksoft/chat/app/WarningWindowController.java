@@ -9,6 +9,7 @@ import java.util.ResourceBundle;
 
 public class WarningWindowController implements Initializable{
 
+    //Creates a warning window with a given message.
     @FXML
     private Label messageLabel;
 

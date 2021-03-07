@@ -57,6 +57,7 @@ public class Controller2 extends HBox{
     ArrayList<String> friendsNameList;
     List<Object> friendArray;
 
+    //Execute on program start
     @FXML
     public void initialize(){
         noUserLabel.setPadding(new Insets(25,0,0,0));
@@ -71,10 +72,12 @@ public class Controller2 extends HBox{
         Function2.getFriendRequests();
         Function2.getLanguages();
         settingsUsername.setText(LoginController.loggedUser);
-        messageField.setOnKeyReleased(event -> {
+        messageField.setOnKeyReleased(event -> {    //Bind Enter to send messages
             if (event.getCode() == KeyCode.ENTER) sendMessage();
         });
         //});
+
+        //Prevents the divider from moving
         final double pos = splitPane.getDividers().get(0).getPosition();
         splitPane.getDividers().get(0).positionProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -109,6 +112,7 @@ public class Controller2 extends HBox{
         Function2.openAndCloseSections(mailboxSection.isManaged(),mailboxSection);
     }
 
+    //Switch between Settings and Chat secions
     public void openSettings(MouseEvent event){
         if (!settingsBorderPane.isVisible()){
             settingsBorderPane.setVisible(true);
@@ -132,8 +136,9 @@ public class Controller2 extends HBox{
         Function2.getProfilePhoto(false);
     }
 
+    //under development
     public void changePassword(MouseEvent event){
-        String newpass = ServerFunctions.encodeURL(newPassField.getText());
+        /*String newpass = ServerFunctions.encodeURL(newPassField.getText());
         try {
             String result = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/changePassword.php","password=" + newpass);
             if (result.equals("password changed")){
@@ -144,9 +149,10 @@ public class Controller2 extends HBox{
             System.out.println(result);
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
+    //under development
     public void changeUsername(MouseEvent event){
         String newusername = ServerFunctions.encodeURL(newNameField.getText());
         try {
