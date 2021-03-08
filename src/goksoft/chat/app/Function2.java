@@ -63,8 +63,8 @@ public class Function2 {
     public static ChoiceBox<String> languageChoiceBox;
     public static String currentFriend; //Chatted friend
     public static BorderPane currentPane; //Chatted friend's pane
-    public static ArrayList<String> friendsNameList;
-    public static List<Object> friendArray;
+    public static ArrayList<String> friendsNameList; //Stores friends' names to search over later.
+    public static List<Object> friendArray; //
     public static Label noFriendLabel;
     public static Label noNotifLabel;
     public static Label noUserLabel;
@@ -157,12 +157,12 @@ public class Function2 {
         final String imageName = ServerFunctions.encodeURL(LoginController.loggedUser);
         Thread thread = new Thread(() -> {
             try {
-                //Get the image from server and convert it to BufferedImage
+                //Get the image from server and convert it to BufferedImage to use in JavaFX
                 BufferedImage image = ImageIO.read(new URL(ServerFunctions.serverURL + "/getProfilePhoto.php?username=" + imageName));
                 Image imagefx = SwingFXUtils.toFXImage(image, null);
 
                 Platform.runLater(() -> {
-                    if (imagefx.isError()){ //Fill profile photo with blue if image has error
+                    if (imagefx.isError()){ //Fill profile photo in blue if image has error
                         profilePhoto.setFill(Color.DODGERBLUE);
                     } else {
                         profilePhoto.setFill(new ImagePattern(imagefx));
@@ -184,7 +184,8 @@ public class Function2 {
         thread.start();
     }
 
-    public static  void updateFriendStatus(){   //updates the friend's borderpane with the new datas.
+    //updates the friend's borderpane with the new datas.
+    public static  void updateFriendStatus(){
         Thread thread = new Thread(() -> {
             BufferedImage image;
             try {
@@ -214,25 +215,33 @@ public class Function2 {
 
         Thread thread = new Thread(() -> {
             try {
-                String stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getFriends.php", "");
+                String stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getFriends.php", ""); //Receive the returned json array from server
                 System.out.println(stringArray);
+                //Parse json array to use properly in java
                 JSONParser jsonParser = new JSONParser();
                 JSONArray jsonArray = (JSONArray) jsonParser.parse(stringArray);
 
                 for(int i = 0; i<jsonArray.size(); i++){
-                    JSONArray jsonArray2 = (JSONArray) jsonArray.get(i);
-                    final String imageName = ServerFunctions.encodeURL(jsonArray2.get(0).toString());
+                    JSONArray jsonArray2 = (JSONArray) jsonArray.get(i); //Get each row from array
+                    /*array[0] = friend's username
+                    array[1] = notification count
+                    array[2] = last message
+                    array[3] = passed days since last chat*/
+                    final String imageName = ServerFunctions.encodeURL(jsonArray2.get(0).toString()); //Get friend username to receive its photo from server
 
                     BufferedImage image;
 
                         try {
+                            //Get profile photo and make it proper for JavaFx
                             image = ImageIO.read(new URL(ServerFunctions.serverURL + "/getProfilePhoto.php?username=" + imageName));
                             Image imagefx = SwingFXUtils.toFXImage(image, null);
                             int notifcount = Integer.parseInt(jsonArray2.get(1).toString());
+                            //Create a new borderpane box for the friend with received information from server.
                             BorderPane friend = friendBox(imagefx,jsonArray2.get(0).toString(),jsonArray2.get(2).toString(),jsonArray2.get(1).toString(),jsonArray2.get(3).toString());
+                            //Show the friend at the top of the list if there is a new or unread message. Add to next index if there is not.
                             if (notifcount > 0){
-                                friendArray.add(0,friend);
-                                friendsNameList.add(0,jsonArray2.get(0).toString());
+                                friendArray.add(0,friend); //Add friend to the list
+                                friendsNameList.add(0,jsonArray2.get(0).toString()); //Add friend's name to the list to make search later.
                             } else{
                                 friendArray.add(friendArray.size(),friend);
                                 friendsNameList.add(jsonArray2.get(0).toString());
@@ -241,10 +250,11 @@ public class Function2 {
                             e.printStackTrace();
                         }
                 }
+                //Get each friend from the list and add them to the friendsVBox to make them visible in the app
                 for (Object element : friendArray) {
                     Platform.runLater(() -> friendsVBox.getChildren().add((Node) element));
                 }
-                checkNoResult(stringArray,noFriendLabel);
+                checkNoResult(stringArray,noFriendLabel); //Check if the user has any friends, and if not, show noFriendLabel
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -261,6 +271,8 @@ public class Function2 {
                 JSONParser jsonParser = new JSONParser();
                 JSONArray jsonArray = (JSONArray) jsonParser.parse(stringArray);
                 Platform.runLater(() -> notificationVBox.getChildren().clear());
+                //Get each requester's name from the server and create a request box with requestBox(requester name) function.
+                //Add boxes to notificationVBox to show in the app.
                 for(int i = 0; i<jsonArray.size(); i++){
                     int finalI = i;
                     Platform.runLater(() -> notificationVBox.getChildren().add(0,requestBox(jsonArray.get(finalI).toString())));
@@ -274,13 +286,14 @@ public class Function2 {
     }
 
     public static void sendMessage(){
-        String msg = ServerFunctions.encodeURL(messageField.getText());
-        String curFriend = ServerFunctions.encodeURL(currentFriend);
-        listView.getItems().add(msg);
-        messageField.setText("");
+        String msg = ServerFunctions.encodeURL(messageField.getText()); //Get typed message
+        String curFriend = ServerFunctions.encodeURL(currentFriend); //Get current chatted friend
+        listView.getItems().add(msg); //Add message to message list
+        messageField.setText(""); //Clear the message field
 
         Thread thread = new Thread(() ->{
             try {
+                //Send message to the server for the friend to see.
                 String bmc = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/sendMessage.php","receiver=" + curFriend + "&message=" + msg);
                 System.out.println(bmc);
             } catch (Exception e) {
@@ -289,30 +302,32 @@ public class Function2 {
             }
         });
         thread.start();
-        getMessages();
-        friendScrollPane.setVvalue(friendScrollPane.getHmin());
-        updateFriendStatus();
+        getMessages(); //Get and show all messages
+        friendScrollPane.setVvalue(friendScrollPane.getHmin()); //Scroll down to last message
+        updateFriendStatus(); //Update friend's box with new stats.
     }
 
     public static void getMessages(){
-        ArrayList<String> msgList = new ArrayList<>();
+        ArrayList<String> msgList = new ArrayList<>(); //Create a message list
         String curFriend = ServerFunctions.encodeURL(currentFriend);
 
         Thread thread = new Thread(() -> {
             String stringArray;
             try {
+                //Send request to server and receive an array of messages with the chatted friend.
                 stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getMessage.php", "receiver=" + curFriend);
                 System.out.println(stringArray);
                 JSONParser jsonParser = new JSONParser();
                 JSONArray jsonArray = (JSONArray) jsonParser.parse(stringArray);
                 for (int i = 0; i < jsonArray.size(); i++){
                     JSONArray msgArray = (JSONArray) jsonArray.get(i);
-                    String user = msgArray.get(0).toString();
-                    String message = msgArray.get(1).toString();
-                    msgList.add(user + ": " + message);
+                    String user = msgArray.get(0).toString(); //Get the message owner
+                    String message = msgArray.get(1).toString(); //Get the message
+                    msgList.add(user + ": " + message); //Add them to the list as owner:message
                 }
                 Platform.runLater(() -> listView.getItems().clear());
 
+                //Add each message form to listView
                 for (int i = 0; i < msgList.size(); i++){
                     int finalI = i;
                     Platform.runLater(() -> listView.getItems().add(msgList.get(finalI)));
