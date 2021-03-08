@@ -340,6 +340,7 @@ public class Function2 {
         thread.start();
     }
 
+    //Add available languages into the app.
     public static void getLanguages(){
         languageChoiceBox.getItems().removeAll(languageChoiceBox.getItems());
         languageChoiceBox.getItems().addAll("Turkish-Türkçe", "English", "Norwegian-Norsk");
@@ -350,10 +351,11 @@ public class Function2 {
             FileChooser fileChooser = new FileChooser();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            File file = fileChooser.showOpenDialog(stage);
+            File file = fileChooser.showOpenDialog(stage); //Get the selected file
 
             if (file != null){
                 try {
+                    //Send selected file to the server
                     String string = ServerFunctions.FILERequest(ServerFunctions.serverURL + "/uploadPhoto.php", file, "photo");
                     System.out.println(string);
                 } catch (Exception e) {
@@ -363,14 +365,17 @@ public class Function2 {
     }
 
     public static void searchFriend(KeyEvent event){
-        friendsVBox.getChildren().clear();
-        String searchedFriend = searchFriendField.getText();
+        friendsVBox.getChildren().clear(); //Remove all existing friends from view.
+        String searchedFriend = searchFriendField.getText(); //Get typed characters on frontend.
         Thread thread = new Thread(() -> {
+            //Search through all friends' names.
             for (int i = 0; i < friendsNameList.size(); i++) {
+                //Check if friend's name includes typed characters.
                 if (friendsNameList.get(i).contains(searchedFriend)) {
                     System.out.println("girdi: " + friendsNameList.get(i));
                     System.out.println(friendArray);
                     int finalI = i;
+                    //Add searched friend to the emptied vbox.
                     Platform.runLater(() -> friendsVBox.getChildren().add(0, (Node) friendArray.get(finalI)));
                 }
             }
@@ -379,14 +384,16 @@ public class Function2 {
     }
 
     public static void searchOnUsers(KeyEvent event){
-        String writtenName = ServerFunctions.encodeURL(searchUserField.getText());
+        String writtenName = ServerFunctions.encodeURL(searchUserField.getText()); //Get typed characters on frontend.
         Thread thread = new Thread(() -> {
             try {
+                //Send request to server with typed characters and receive a json array of possible users.
                 String stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getUsernames.php","username=" + writtenName);
                 System.out.println(stringArray);
                 JSONParser jsonParser = new JSONParser();
                 JSONArray jsonArray = (JSONArray) jsonParser.parse(stringArray);
                 Platform.runLater(() -> usersVBox.getChildren().clear());
+                //Create box for each possible user and add it to list.
                 for(int i = 0; i<jsonArray.size(); i++){
                     int finalI = i;
                     Platform.runLater(() -> usersVBox.getChildren().add(0,userBox(jsonArray.get(finalI).toString())));
@@ -399,15 +406,19 @@ public class Function2 {
         thread.start();
     }
 
+    //Creates a box in BorderPane form for friends with the parameters provided and returns it.
     public static BorderPane friendBox(Image friendPhoto, String friendName,String lastMessage,String notifCount,String lastDate){
+        //Border style of the box
         String style = "-fx-border-color: #949494; -fx-border-width: 0.5px 0px 0.5px 0px";
 
+        //Create the border pane
         BorderPane borderPane = new BorderPane();
         borderPane.setPrefHeight(86);
         borderPane.setPrefWidth(237);
         borderPane.setStyle(style);
         borderPane.setCursor(Cursor.HAND);
 
+        //Create a circle for the user's profile photo and locate in the border pane
         Circle friendProfilePhoto = new Circle();
         friendProfilePhoto.setRadius(21);
         friendProfilePhoto.setStrokeWidth(0);
@@ -416,6 +427,7 @@ public class Function2 {
         BorderPane.setAlignment(friendProfilePhoto,Pos.CENTER);
         BorderPane.setMargin(friendProfilePhoto,new Insets(0,0,30,10));
 
+        //Create and locate username label
         Label friend = new Label(friendName);
         friend.setPrefHeight(30);
         friend.setPrefWidth(246);
@@ -424,6 +436,7 @@ public class Function2 {
         friend.setPadding(new Insets(10,0,0,70));
         BorderPane.setAlignment(friend,Pos.CENTER_LEFT);
 
+        //Create and locate last message label
         Label lstMsg = new Label(lastMessage);
         lstMsg.setMaxWidth(1.7976931348623157E308);
         lstMsg.setPrefHeight(18);
@@ -432,6 +445,7 @@ public class Function2 {
         BorderPane.setAlignment(lstMsg,Pos.CENTER_LEFT);
         BorderPane.setMargin(lstMsg,new Insets(0,0,10,15));
 
+        //Create Hbox where notification count will be shown
         HBox hBox = new HBox();
         hBox.setAlignment(Pos.CENTER_LEFT);
         hBox.setMaxWidth(1.7976931348623157E308);
@@ -440,15 +454,17 @@ public class Function2 {
         hBox.setPadding(new Insets(0,0,10,0));
         BorderPane.setAlignment(hBox,Pos.CENTER_LEFT);
 
+        //Circle for notification count
         Circle notifCircle = new Circle(9);
-        notifCircle.setFill(Color.web("#ff6f00"));
-        notifCircle.setStroke(Color.web("#ff6f00"));
-        Text text = new Text(notifCount);
+        notifCircle.setFill(Color.web("#ff6f00")); //Bakcground color of the circle
+        notifCircle.setStroke(Color.web("#ff6f00")); //Border color of the circle
+        Text text = new Text(notifCount); //Text to show notification count
         text.setFill(Color.WHITE);
         text.setBoundsType(TextBoundsType.VISUAL);
         StackPane stack = new StackPane();
         stack.getChildren().addAll(notifCircle, text);
 
+        //Create and locate last chat date in the pane
         Label lstDt = new Label(lastDate);
         lstDt.setAlignment(Pos.CENTER);
         lstDt.setMaxWidth(1.7976931348623157E308);
@@ -457,12 +473,16 @@ public class Function2 {
         lstDt.setTextFill(Color.web("#949494"));
         BorderPane.setMargin(lstDt,new Insets(0,10,0,0));
 
-        if (Integer.parseInt(notifCount) > 0){ hBox.getChildren().addAll(stack,lstDt); }
+        if (Integer.parseInt(notifCount) > 0){ hBox.getChildren().addAll(stack,lstDt); } //Show notification count if only it is more than 0
         else { hBox.getChildren().addAll(lstDt); }
+
+        //Set locations of the properties in the pane
         borderPane.setLeft(friendProfilePhoto);
         borderPane.setTop(friend);
         borderPane.setCenter(lstMsg);
         borderPane.setRight(hBox);
+
+        //Get friend's photo from server.
         String imageName = ServerFunctions.encodeURL(friendName);
         BufferedImage image = null;
         try {
@@ -471,6 +491,11 @@ public class Function2 {
             e.printStackTrace();
         }
         Image imagefx = SwingFXUtils.toFXImage(image, null);
+        /*Create an action when border pane is clicked.
+        Form a chat screen with the friend,
+        Close the settings section if it is open,
+        Make the chat screen visible
+        Get the messages*/
         borderPane.setOnMouseClicked((event)->{
             getClickedFriend(imagefx,friendName, borderPane);
             settingsBorderPane.setVisible(false);
@@ -480,6 +505,7 @@ public class Function2 {
         return borderPane;
     }
 
+    //Creates a box in BorderPane form for friend requests with the requester name and returns it.
     public static BorderPane requestBox(String requesterName){
         String style = "-fx-background-color: #ff6f00";
         String style1 = "-fx-background-color: #ff5800";
@@ -489,12 +515,14 @@ public class Function2 {
         requestPane.setPrefWidth(237);
         requestPane.setStyle(style);
 
+        //Circle for profile photo
         Circle circle = new Circle();
         circle.setRadius(21);
         circle.setFill(Color.DODGERBLUE);
         BorderPane.setAlignment(circle,Pos.CENTER);
         BorderPane.setMargin(circle,new Insets(10,0,0,10));
 
+        //Label for requester's username
         Label senderName = new Label(requesterName);
         senderName.setPrefHeight(24);
         senderName.setPrefWidth(158);
@@ -503,6 +531,7 @@ public class Function2 {
         BorderPane.setAlignment(senderName,Pos.CENTER_LEFT);
         BorderPane.setMargin(senderName,new Insets(0,0,0,20));
 
+        //HBox where accept and reject button will be located
         HBox hBox = new HBox();
         hBox.setPrefHeight(38);
         hBox.setPrefWidth(166);
@@ -512,6 +541,7 @@ public class Function2 {
         BorderPane.setMargin(hBox,new Insets(0,0,0,55));
         BorderPane.setAlignment(hBox,Pos.CENTER);
 
+        //Accept button to accept the request
         Button acceptButton = new Button("Accept");
         acceptButton.setPrefHeight(26);
         acceptButton.setPrefWidth(65);
@@ -532,6 +562,7 @@ public class Function2 {
                 e.printStackTrace();
             }
         }));
+        //Reject button to deny the request and block the user.
         Button rejectButton = new Button("Reject");
         rejectButton.setPrefHeight(26);
         rejectButton.setPrefWidth(59);
@@ -553,9 +584,12 @@ public class Function2 {
         }));
 
         hBox.getChildren().addAll(acceptButton,rejectButton);
+        //Locate properties in the pane
         requestPane.setLeft(circle);
         requestPane.setCenter(senderName);
         requestPane.setBottom(hBox);
+
+        //Get the profile photo from server
         final String imageName = ServerFunctions.encodeURL(requesterName);
         Thread thread = new Thread(()-> {
             try {
@@ -570,12 +604,14 @@ public class Function2 {
         });
         thread.start();
         return requestPane;
-    } // creates a box that shows the friend request from a user.
+    }
 
+    //Creates a box in HBox form for searched users and returns it.
     public static HBox userBox(String userName){ // creates a box that contains user's information when a user is searched.
         String backgroundStyle = "-fx-background-color:   #ff7d1a; -fx-border-color: #ff6f00; -fx-border-width: 1.5px";
         String buttonStyle = "-fx-background-color: #1c1b1b";
 
+        //HBox where all properties will be gathered
         HBox hBox = new HBox();
         hBox.setPrefWidth(237);
         hBox.setPrefHeight(59);
@@ -595,6 +631,7 @@ public class Function2 {
         HBox.setHgrow(username, Priority.ALWAYS);
         HBox.setMargin(username,new Insets(0,10,0,10));
 
+        //An 'Add' button to send friend request to the user.
         Button addButton = new Button("+ Add");
         addButton.setPrefHeight(26);
         addButton.setPrefWidth(51);
