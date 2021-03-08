@@ -45,6 +45,7 @@ public class Function2 {
     public static BorderPane settingsBorderPane;
     public static ScrollPane friendScrollPane;
     public static HBox operationsHBox;
+    public static VBox mixedVBox;
     public static VBox friendSection;
     public static VBox mailboxSection;
     public static VBox addFriendSection;
@@ -304,7 +305,8 @@ public class Function2 {
         thread.start();
         getMessages(); //Get and show all messages
         friendScrollPane.setVvalue(friendScrollPane.getHmin()); //Scroll down to last message
-        updateFriendStatus(); //Update friend's box with new stats.
+        //updateFriendStatus(); //Update friend's box with new stats.
+        getFriends();
     }
 
     public static void getMessages(){
@@ -676,7 +678,9 @@ public class Function2 {
     public static void openAndCloseSections(boolean value, VBox vBox){
         Stage currentStage = (Stage) Stage.getWindows().get(0); //Get current stage
 
+
         if(!value){
+
             Timeline timeline = new Timeline(); //Create timeline for animation.
             //Close all three sections.
             friendSection.setManaged(false);

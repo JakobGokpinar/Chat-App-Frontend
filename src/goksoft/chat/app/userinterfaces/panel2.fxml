@@ -116,7 +116,7 @@
                                     </ScrollPane>
                                  </children>
                               </VBox>
-                              <VBox fx:id="mailboxSection" managed="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #1c1b1b;" visible="false" VBox.vgrow="ALWAYS">
+                              <VBox fx:id="mailboxSection" managed="false" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #1c1b1b;" visible="false" VBox.vgrow="ALWAYS">
                                  <children>
                                     <HBox prefHeight="60.0" prefWidth="200.0" style="-fx-background-color: #ffaa00;">
                                        <children>
