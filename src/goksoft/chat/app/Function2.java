@@ -5,14 +5,16 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.value.WritableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.*;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
@@ -30,6 +32,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -128,7 +131,6 @@ public class Function2 {
 
                         String cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/checkNotif.php", "chatter=" + curFriend);
                         Thread.sleep(1000);
-                        System.out.println("checknotif: " + cevap);
                         if (!cevap.equals("0"))
                             Platform.runLater(Function2::getMessages);
                     } catch (Exception e) {
@@ -143,11 +145,9 @@ public class Function2 {
     //Show no match labels.
     public static void checkNoResult(String string,Label label){
         if (string.equals("[]")){
-            System.out.println("empty");
             label.setManaged(true);
             label.setVisible(true);
         } else {
-            System.out.println("no empty");
             label.setVisible(false);
             label.setManaged(false);
         }
@@ -179,29 +179,6 @@ public class Function2 {
                     }
                 });
             } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        thread.start();
-    }
-
-    //updates the friend's borderpane with the new datas.
-    public static  void updateFriendStatus(){
-        Thread thread = new Thread(() -> {
-            BufferedImage image;
-            try {
-                image = ImageIO.read(new URL(ServerFunctions.serverURL + "/getProfilePhoto.php?username=" + currentFriend));
-                Image imagefx = SwingFXUtils.toFXImage(image, null);
-                String msg = listView.getItems().get(listView.getItems().size() -1);
-                int index = msg.indexOf(':');
-                String lastmsg = msg.substring(index+1);
-                Platform.runLater(() -> {
-                    friendsVBox.getChildren().remove(currentPane);
-                    BorderPane pane = friendBox(imagefx,currentFriend,lastmsg,"0","Now");
-                    friendsVBox.getChildren().add(0, pane);
-                    currentPane = pane;
-                });
-            } catch (IOException e) {
                 e.printStackTrace();
             }
         });
@@ -295,8 +272,8 @@ public class Function2 {
         Thread thread = new Thread(() ->{
             try {
                 //Send message to the server for the friend to see.
-                String bmc = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/sendMessage.php","receiver=" + curFriend + "&message=" + msg);
-                System.out.println(bmc);
+                String response = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/sendMessage.php","receiver=" + curFriend + "&message=" + msg);
+                System.out.println(response);
             } catch (Exception e) {
                 e.printStackTrace();
                 return;
@@ -305,7 +282,6 @@ public class Function2 {
         thread.start();
         getMessages(); //Get and show all messages
         friendScrollPane.setVvalue(friendScrollPane.getHmin()); //Scroll down to last message
-        //updateFriendStatus(); //Update friend's box with new stats.
         getFriends();
     }
 
@@ -318,7 +294,6 @@ public class Function2 {
             try {
                 //Send request to server and receive an array of messages with the chatted friend.
                 stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getMessage.php", "receiver=" + curFriend);
-                System.out.println(stringArray);
                 JSONParser jsonParser = new JSONParser();
                 JSONArray jsonArray = (JSONArray) jsonParser.parse(stringArray);
                 for (int i = 0; i < jsonArray.size(); i++){
@@ -374,8 +349,6 @@ public class Function2 {
             for (int i = 0; i < friendsNameList.size(); i++) {
                 //Check if friend's name includes typed characters.
                 if (friendsNameList.get(i).contains(searchedFriend)) {
-                    System.out.println("girdi: " + friendsNameList.get(i));
-                    System.out.println(friendArray);
                     int finalI = i;
                     //Add searched friend to the emptied vbox.
                     Platform.runLater(() -> friendsVBox.getChildren().add(0, (Node) friendArray.get(finalI)));
@@ -419,6 +392,7 @@ public class Function2 {
         borderPane.setPrefWidth(237);
         borderPane.setStyle(style);
         borderPane.setCursor(Cursor.HAND);
+        borderPane.setId(friendName);
 
         //Create a circle for the user's profile photo and locate in the border pane
         Circle friendProfilePhoto = new Circle();

@@ -3,11 +3,11 @@ package goksoft.chat.app;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -15,10 +15,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
 
-
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,21 +65,21 @@ public class Controller2 extends HBox{
     @FXML
     public void initialize(){
         noUserLabel.setPadding(new Insets(25,0,0,0));
+
         new Function2(chatBorderPane, settingsBorderPane, operationsHBox, friendScrollPane,friendSection,  mailboxSection,  addFriendSection,
                 friendsVBox,notificationVBox,usersVBox,settingsTopVBox,searchUserField,searchFriendField,profilePhoto, settingsButton,  chatFriendProfilePhoto, chatFriendName,  messageField,
                 listView,  languageChoiceBox,  currentFriend,  friendsNameList,
                 friendArray,noFriendLabel,noNotifLabel,noUserLabel,darkThemeButton);
 
-        //Platform.runLater(() -> {
         Function2.getFriends();
         Function2.getProfilePhoto(false);
         Function2.getFriendRequests();
         Function2.getLanguages();
+
         settingsUsername.setText(LoginController.loggedUser);
         messageField.setOnKeyReleased(event -> {    //Bind Enter to send messages
             if (event.getCode() == KeyCode.ENTER) sendMessage();
         });
-        //});
 
         //Prevents the divider from moving
         final double pos = splitPane.getDividers().get(0).getPosition();
@@ -85,6 +89,66 @@ public class Controller2 extends HBox{
                 splitPane.getDividers().get(0).setPosition(pos);
             }
         });
+
+        Thread thread = new Thread(() -> {
+            try {
+                while(true){
+                    Thread.sleep(1000 * 3);
+
+                    String friendArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getFriends.php","");
+                    JSONParser jsonParser = new JSONParser();
+                    JSONArray jsonArray = (JSONArray) jsonParser.parse(friendArray);
+
+                    final int[] index = {0}; //To properly sort friends with notifications.
+
+                    for(int i = 0; i<jsonArray.size(); i++){
+                        JSONArray jsonArray2 = (JSONArray) jsonArray.get(i);
+
+                        String username = jsonArray2.get(0).toString();
+                        String notifcount = jsonArray2.get(1).toString();
+                        String lastMsg = jsonArray2.get(2).toString();
+                        String passedTime = jsonArray2.get(3).toString();
+
+                        final String imageName = username;
+                        BufferedImage image;
+
+                        try {
+                            image = ImageIO.read(new URL(ServerFunctions.serverURL + "/getProfilePhoto.php?username=" + imageName));
+                            Image imagefx = SwingFXUtils.toFXImage(image, null);
+
+                            BorderPane friend = Function2.friendBox(imagefx,username,lastMsg,notifcount,passedTime);
+                            friend.setId(username);
+
+                            //Find the friend by his pane's id and update his status.
+                            for (int j = 0; j < friendsVBox.getChildren().size(); j++) {
+                                if (friendsVBox.getChildren().get(j).getId().equals(username)){
+                                    int finalJ = j;
+                                    Platform.runLater(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            friendsVBox.getChildren().remove(finalJ);
+                                            if(!notifcount.equals("0")){
+                                                friendsVBox.getChildren().add(index[0],friend);
+                                                index[0]++;
+                                            }
+                                            else friendsVBox.getChildren().add(friend);
+                                        }
+                                    });
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    System.out.println("stats...");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+
     }
 
     public Stage getStage(){
@@ -92,7 +156,6 @@ public class Controller2 extends HBox{
     }
 
     public void sendMessage(){
-        //Platform.runLater(Function2::sendMessage);
         Function2.sendMessage();
     }
 
@@ -154,7 +217,7 @@ public class Controller2 extends HBox{
 
     //under development
     public void changeUsername(MouseEvent event){
-        String newusername = ServerFunctions.encodeURL(newNameField.getText());
+        /*String newusername = ServerFunctions.encodeURL(newNameField.getText());
         try {
             String result = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/changeUsername.php","username=" + newusername);
             if (result.equals("username changed")){
@@ -165,7 +228,7 @@ public class Controller2 extends HBox{
             System.out.println("change username: " + result);
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void logOff(MouseEvent event){
