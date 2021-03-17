@@ -33,6 +33,7 @@ public class Controller2 extends HBox{
     @FXML private ScrollPane friendScrollPane;
     @FXML public BorderPane settingsBorderPane;
     @FXML public HBox operationsHBox;
+    @FXML public VBox mixedVBox;
     @FXML public  VBox friendSection;
     @FXML public VBox mailboxSection;
     @FXML public VBox addFriendSection;
@@ -66,7 +67,7 @@ public class Controller2 extends HBox{
     public void initialize(){
         noUserLabel.setPadding(new Insets(25,0,0,0));
 
-        new Function2(chatBorderPane, settingsBorderPane, operationsHBox, friendScrollPane,friendSection,  mailboxSection,  addFriendSection,
+        new Function2(chatBorderPane, settingsBorderPane, operationsHBox, friendScrollPane,mixedVBox, friendSection, mailboxSection, addFriendSection,
                 friendsVBox,notificationVBox,usersVBox,settingsTopVBox,searchUserField,searchFriendField,profilePhoto, settingsButton,  chatFriendProfilePhoto, chatFriendName,  messageField,
                 listView,  languageChoiceBox,  currentFriend,  friendsNameList,
                 friendArray,noFriendLabel,noNotifLabel,noUserLabel,darkThemeButton);
@@ -90,7 +91,7 @@ public class Controller2 extends HBox{
             }
         });
 
-        Thread thread = new Thread(() -> {
+        /*Thread thread = new Thread(() -> {
             try {
                 while(true){
                     Thread.sleep(1000 * 3);
@@ -147,7 +148,7 @@ public class Controller2 extends HBox{
             }
         });
         thread.setDaemon(true);
-        thread.start();
+        thread.start();*/
 
     }
 

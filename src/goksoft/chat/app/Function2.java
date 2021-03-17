@@ -77,7 +77,7 @@ public class Function2 {
     public static int currentTimer;
 
     //Constructor of the Function2 class
-    public Function2(BorderPane chatBorderPane, BorderPane settingsBorderPane, HBox operationsHBox, ScrollPane friendScrollPane,VBox friendSection, VBox mailboxSection, VBox addFriendSection,
+    public Function2(BorderPane chatBorderPane, BorderPane settingsBorderPane, HBox operationsHBox, ScrollPane friendScrollPane,VBox mixedVBox,VBox friendSection, VBox mailboxSection, VBox addFriendSection,
                      VBox friendsVBox, VBox notificationVBox, VBox usersVBox,VBox settingsTopVBox, TextField searchUserField,TextField searchFriendField, Circle profilePhoto, Circle settingsButton,
                      Circle chatFriendProfilePhoto, Label chatFriendName, TextField messageField,
                      ListView<String> listView, ChoiceBox<String> languageChoiceBox, String currentFriend, ArrayList<String> friendsNameList,
@@ -86,6 +86,7 @@ public class Function2 {
         Function2.settingsBorderPane = settingsBorderPane;
         Function2.operationsHBox = operationsHBox;
         Function2.friendScrollPane = friendScrollPane;
+        Function2.mixedVBox = mixedVBox;
         Function2.friendSection = friendSection;
         Function2.mailboxSection = mailboxSection;
         Function2.addFriendSection = addFriendSection;
@@ -333,7 +334,7 @@ public class Function2 {
             if (file != null){
                 try {
                     //Send selected file to the server
-                    String string = ServerFunctions.FILERequest(ServerFunctions.serverURL + "/uploadPhoto.php", file, "photo");
+                    String string = ServerFunctions.FILERequest(ServerFunctions.serverURL + "/changePhoto.php", file, "photo");
                     System.out.println(string);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -652,35 +653,44 @@ public class Function2 {
     public static void openAndCloseSections(boolean value, VBox vBox){
         Stage currentStage = (Stage) Stage.getWindows().get(0); //Get current stage
 
-
         if(!value){
-
             Timeline timeline = new Timeline(); //Create timeline for animation.
-            //Close all three sections.
+            if(vBox==mailboxSection){
+                if(!mixedVBox.getChildren().get(1).getId().equals("addFriendSection")){
+                    mixedVBox.getChildren().remove(addFriendSection);
+                    mixedVBox.getChildren().add(1,addFriendSection);
+                    timeline.setOnFinished(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent actionEvent) {
+                            currentStage.setTitle("Mailbox");
+                            addFriendSection.setVisible(false);
+                            friendSection.setVisible(false);
+                        }
+                    });
+                }
+            }
+            if(vBox==addFriendSection){
+                if(!mixedVBox.getChildren().get(1).getId().equals("mailboxSection")){
+                    mixedVBox.getChildren().remove(mailboxSection);
+                    mixedVBox.getChildren().add(1,mailboxSection);
+                    timeline.setOnFinished(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent actionEvent) {
+                            currentStage.setTitle("Add Friend");
+                            mailboxSection.setVisible(false);
+                            friendSection.setVisible(false);
+                        }
+                    });
+                }
+            }
             friendSection.setManaged(false);
             mailboxSection.setManaged(false);
             addFriendSection.setManaged(false);
-            //Open only the spesificied section.
             vBox.setManaged(true); vBox.setVisible(true);
             vBox.translateYProperty().set(addFriendSection.getHeight());
             KeyValue kv  = new KeyValue(vBox.translateYProperty(),0, Interpolator.EASE_IN);
             KeyFrame kf = new KeyFrame(Duration.seconds(1),kv);
             timeline.getKeyFrames().add(kf);
-            timeline.setOnFinished(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    if (vBox == addFriendSection){
-                        currentStage.setTitle("Add Friend");
-                        friendSection.setVisible(false);
-                        mailboxSection.setVisible(false);
-                    }
-                    if (vBox == mailboxSection){
-                        currentStage.setTitle("Mailbox");
-                        addFriendSection.setVisible(false);
-                        friendSection.setVisible(false);
-                    }
-                }
-            });
             timeline.play();
         } else{
             //Close add friend section and mailbox section, open friend section.
