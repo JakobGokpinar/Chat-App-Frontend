@@ -5,11 +5,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,8 +33,22 @@ public class LoginController{
     private CheckBox rememberMeButton;
     @FXML
     private CheckBox showPasswordButton;
+    @FXML private Button signinButton;
 
     public static String loggedUser;
+
+    @FXML
+    public void initialize(){
+        usernameField.setOnKeyReleased(event -> {    //Login by pressing enter
+            if (event.getCode() == KeyCode.ENTER) signIn();
+        });
+        passwordField.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.ENTER) signIn();
+        });
+        signinButton.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.ENTER) signIn();
+        });
+    }
 
     public void setUsernameField(String text){ usernameField.setText(text); }
 
@@ -116,6 +134,10 @@ public class LoginController{
     }
 
     public void signInButton(MouseEvent event) {
+        signIn();
+    }
+
+    public void signIn(){
         //Get username and password and encode them.
         String name = ServerFunctions.encodeURL(usernameField.getText());
         String pass = ServerFunctions.encodeURL(passwordField.getText());
@@ -140,7 +162,8 @@ public class LoginController{
                 loggedUser = usernameField.getText();
                 Parent mainPanel = FXMLLoader.load(getClass().getResource("userinterfaces/panel2.fxml")); //Load main panel
                 Scene scene = new Scene(mainPanel); //Create a scene with main panel
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow(); //Get stage
+                Stage stage = (Stage) textField.getScene().getWindow();
+                //Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow(); //Get stage
                 stage.hide(); //Hide current stage with login panel
                 Stage newStage = new Stage(); //Create new stage
                 newStage.setScene(scene); //Set new stage's scene with main panel

@@ -1,9 +1,6 @@
 package goksoft.chat.app;
 
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -16,6 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -23,14 +21,17 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import javax.imageio.ImageIO;
@@ -60,6 +61,7 @@ public class Function2 {
     public static TextField searchFriendField;
     public static Circle profilePhoto;
     public static Circle settingsButton;
+    public static Button mailboxButton;
     public static Circle chatFriendProfilePhoto;
     public static Label chatFriendName;
     public static TextField messageField;
@@ -75,11 +77,12 @@ public class Function2 {
     public static RadioButton darkThemeButton;
 
     public static int currentTimer;
+    public static ArrayList<String> friendRequestNameList  = new ArrayList<>();
 
     //Constructor of the Function2 class
     public Function2(BorderPane chatBorderPane, BorderPane settingsBorderPane, HBox operationsHBox, ScrollPane friendScrollPane,VBox mixedVBox,VBox friendSection, VBox mailboxSection, VBox addFriendSection,
                      VBox friendsVBox, VBox notificationVBox, VBox usersVBox,VBox settingsTopVBox, TextField searchUserField,TextField searchFriendField, Circle profilePhoto, Circle settingsButton,
-                     Circle chatFriendProfilePhoto, Label chatFriendName, TextField messageField,
+                     Button mailboxButton, Circle chatFriendProfilePhoto, Label chatFriendName, TextField messageField,
                      ListView<String> listView, ChoiceBox<String> languageChoiceBox, String currentFriend, ArrayList<String> friendsNameList,
                      List<Object> friendArray,Label noFriendLabel,Label noNotifLabel,Label noUserLabel,RadioButton darkThemeButton){
         Function2.chatBorderPane = chatBorderPane;
@@ -98,6 +101,7 @@ public class Function2 {
         Function2.searchFriendField = searchFriendField;
         Function2.profilePhoto = profilePhoto;
         Function2.settingsButton = settingsButton;
+        Function2.mailboxButton = mailboxButton;
         Function2.chatFriendProfilePhoto = chatFriendProfilePhoto;
         Function2.chatFriendName = chatFriendName;
         Function2.messageField = messageField;
@@ -155,12 +159,13 @@ public class Function2 {
     }
 
     //Get logged in user's profile photo
-    public static void getProfilePhoto(boolean mouseEvent){
+    public static void getProfilePhoto(boolean mouse) {
         final String imageName = ServerFunctions.encodeURL(LoginController.loggedUser);
         Thread thread = new Thread(() -> {
+            BufferedImage image;
             try {
                 //Get the image from server and convert it to BufferedImage to use in JavaFX
-                BufferedImage image = ImageIO.read(new URL(ServerFunctions.serverURL + "/getProfilePhoto.php?username=" + imageName));
+                image = ImageIO.read(new URL(ServerFunctions.serverURL + "/getProfilePhoto.php?username=" + imageName));
                 Image imagefx = SwingFXUtils.toFXImage(image, null);
 
                 Platform.runLater(() -> {
@@ -171,7 +176,7 @@ public class Function2 {
                         settingsButton.setFill(new ImagePattern(imagefx)); //Set image into the circle at bottom-left.
                     }
                     //Fill profile photo with black when mouseEvent is true
-                    if (mouseEvent){
+                    if (mouse){
                         profilePhoto.setFill(Color.BLACK);
                         Tooltip.install(
                                 profilePhoto,
@@ -194,6 +199,7 @@ public class Function2 {
 
         Thread thread = new Thread(() -> {
             try {
+
                 String stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getFriends.php", ""); //Receive the returned json array from server
                 System.out.println(stringArray);
                 //Parse json array to use properly in java
@@ -218,13 +224,15 @@ public class Function2 {
                             //Create a new borderpane box for the friend with received information from server.
                             BorderPane friend = friendBox(imagefx,jsonArray2.get(0).toString(),jsonArray2.get(2).toString(),jsonArray2.get(1).toString(),jsonArray2.get(3).toString());
                             //Show the friend at the top of the list if there is a new or unread message. Add to next index if there is not.
-                            if (notifcount > 0){
+                            friendArray.add(friendArray.size(),friend);
+                            friendsNameList.add(jsonArray2.get(0).toString());
+                            /*if (notifcount > 0){
                                 friendArray.add(0,friend); //Add friend to the list
                                 friendsNameList.add(0,jsonArray2.get(0).toString()); //Add friend's name to the list to make search later.
                             } else{
                                 friendArray.add(friendArray.size(),friend);
                                 friendsNameList.add(jsonArray2.get(0).toString());
-                            }
+                            }*/
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -254,9 +262,14 @@ public class Function2 {
                 //Add boxes to notificationVBox to show in the app.
                 for(int i = 0; i<jsonArray.size(); i++){
                     int finalI = i;
-                    Platform.runLater(() -> notificationVBox.getChildren().add(0,requestBox(jsonArray.get(finalI).toString())));
+                    String username = jsonArray.get(finalI).toString();
+                    Platform.runLater(() -> notificationVBox.getChildren().add(0,requestBox(username)));
+                    friendRequestNameList.add(username);
                 }
                 checkNoResult(stringArray,noNotifLabel);
+                if(!friendRequestNameList.isEmpty()){
+                    dropShadowEffect(Color.RED, 0.60,1,1,15,mailboxButton);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -264,10 +277,27 @@ public class Function2 {
         thread.start();
     }
 
+    public static void dropShadowEffect(Color shadowColor, double spread, int duration1, int duration2, int cycleCount, Node region){
+        DropShadow shadow = new DropShadow();
+        shadow.setColor(shadowColor);
+        shadow.setSpread(spread);
+
+        Timeline shadowAnimation = new Timeline(
+                new KeyFrame(Duration.millis(1000 * duration1), new KeyValue(shadow.radiusProperty(), 0d)),
+                new KeyFrame(Duration.millis(1000 * duration2), new KeyValue(shadow.radiusProperty(), 20d)));
+        shadowAnimation.setCycleCount(cycleCount);
+
+        Node target = region;
+        target.setEffect(shadow);
+        shadowAnimation.setOnFinished(evt -> target.setEffect(null));
+        shadowAnimation.play();
+    }
+
+
     public static void sendMessage(){
         String msg = ServerFunctions.encodeURL(messageField.getText()); //Get typed message
         String curFriend = ServerFunctions.encodeURL(currentFriend); //Get current chatted friend
-        listView.getItems().add(msg); //Add message to message list
+        listView.getItems().add(LoginController.loggedUser + ": " + messageField.getText()); //Add message to message list
         messageField.setText(""); //Clear the message field
 
         Thread thread = new Thread(() ->{
@@ -281,9 +311,7 @@ public class Function2 {
             }
         });
         thread.start();
-        getMessages(); //Get and show all messages
-        friendScrollPane.setVvalue(friendScrollPane.getHmin()); //Scroll down to last message
-        getFriends();
+        friendScrollPane.setVvalue(friendScrollPane.getHmin());
     }
 
     public static void getMessages(){
@@ -294,7 +322,9 @@ public class Function2 {
             String stringArray;
             try {
                 //Send request to server and receive an array of messages with the chatted friend.
+                System.out.println(curFriend);
                 stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getMessage.php", "receiver=" + curFriend);
+                System.out.println("string: " + stringArray.toString());
                 JSONParser jsonParser = new JSONParser();
                 JSONArray jsonArray = (JSONArray) jsonParser.parse(stringArray);
                 for (int i = 0; i < jsonArray.size(); i++){
@@ -484,8 +514,8 @@ public class Function2 {
 
     //Creates a box in BorderPane form for friend requests with the requester name and returns it.
     public static BorderPane requestBox(String requesterName){
-        String style = "-fx-background-color: #ff6f00";
-        String style1 = "-fx-background-color: #ff5800";
+        String style = "-fx-background-color: #ffb700; -fx-border-color: #ffaa00; -fx-border-width: 1.5px";
+        String style1 = "-fx-background-color: #ff6f00";
         String style2 = "-fx-background-color: #1c1b1b";
         BorderPane requestPane = new BorderPane();
         requestPane.setPrefHeight(75);
@@ -741,6 +771,8 @@ public class Function2 {
             newWindow.setFullScreen(false);
             newWindow.setTitle("Contact");
             newWindow.show();
+            Stage mainStage = (Stage) mixedVBox.getScene().getWindow();
+            mainStage.setOnCloseRequest(windowEvent -> newWindow.close());
         } catch (IOException e) {
             e.printStackTrace();
         }

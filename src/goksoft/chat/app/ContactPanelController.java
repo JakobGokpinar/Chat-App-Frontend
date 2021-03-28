@@ -28,8 +28,8 @@ public class ContactPanelController {
                 return;
             }
             String response = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/sendmail.php", "email=" + email + "&subject=" + subject + "&message=" + message);
-            //Function2.warningMessage("Thanks For Your Feedback!");
             System.out.println(response);
+            Function2.warningMessage(response);
         } catch (Exception e) {
             e.printStackTrace();
         }

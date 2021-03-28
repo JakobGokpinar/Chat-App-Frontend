@@ -14,6 +14,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import org.json.simple.JSONArray;
@@ -44,6 +45,7 @@ public class Controller2 extends HBox{
     @FXML private TextField searchUserField;
     @FXML public Circle profilePhoto;
     @FXML public Circle settingsButton;
+    @FXML public Button mailboxButton;
     @FXML public Circle chatFriendProfilePhoto;
     @FXML public Label chatFriendName;
     @FXML public TextField messageField;
@@ -60,6 +62,7 @@ public class Controller2 extends HBox{
     @FXML private RadioButton darkThemeButton;
 
     ArrayList<String> friendsNameList;
+    ArrayList<String> friendRequestsNameList;
     List<Object> friendArray;
 
     //Execute on program start
@@ -68,7 +71,7 @@ public class Controller2 extends HBox{
         noUserLabel.setPadding(new Insets(25,0,0,0));
 
         new Function2(chatBorderPane, settingsBorderPane, operationsHBox, friendScrollPane,mixedVBox, friendSection, mailboxSection, addFriendSection,
-                friendsVBox,notificationVBox,usersVBox,settingsTopVBox,searchUserField,searchFriendField,profilePhoto, settingsButton,  chatFriendProfilePhoto, chatFriendName,  messageField,
+                friendsVBox,notificationVBox,usersVBox,settingsTopVBox,searchUserField,searchFriendField,profilePhoto, settingsButton, mailboxButton, chatFriendProfilePhoto, chatFriendName,  messageField,
                 listView,  languageChoiceBox,  currentFriend,  friendsNameList,
                 friendArray,noFriendLabel,noNotifLabel,noUserLabel,darkThemeButton);
 
@@ -91,10 +94,10 @@ public class Controller2 extends HBox{
             }
         });
 
-        /*Thread thread = new Thread(() -> {
+        Thread statsThread = new Thread(() -> {
             try {
                 while(true){
-                    Thread.sleep(1000 * 3);
+                    Thread.sleep(1000);
 
                     String friendArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getFriends.php","");
                     JSONParser jsonParser = new JSONParser();
@@ -128,11 +131,8 @@ public class Controller2 extends HBox{
                                         @Override
                                         public void run() {
                                             friendsVBox.getChildren().remove(finalJ);
-                                            if(!notifcount.equals("0")){
-                                                friendsVBox.getChildren().add(index[0],friend);
-                                                index[0]++;
-                                            }
-                                            else friendsVBox.getChildren().add(friend);
+                                            friendsVBox.getChildren().add(index[0],friend);
+                                            index[0]++;
                                         }
                                     });
                                 }
@@ -147,8 +147,37 @@ public class Controller2 extends HBox{
                 e.printStackTrace();
             }
         });
-        thread.setDaemon(true);
-        thread.start();*/
+        statsThread.setDaemon(true);
+        statsThread.start();
+
+
+        Thread requestsThread = new Thread(() -> {
+            try {
+                while (true) {
+                    Thread.sleep(1000 * 5);
+
+                    String stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getRequests.php", "");
+                    System.out.println(stringArray);
+                    JSONParser jsonParser = new JSONParser();
+                    JSONArray jsonArray = (JSONArray) jsonParser.parse(stringArray);
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        int finalI = i;
+                        String username = jsonArray.get(finalI).toString();
+                        if(!Function2.friendRequestNameList.contains(username)){
+                            Platform.runLater(() -> notificationVBox.getChildren().add(0,Function2.requestBox(username)));
+                            Function2.friendRequestNameList.add(username);
+                            Function2.dropShadowEffect(Color.RED,0.60,1,1,15,mailboxButton);
+                            System.out.println("new request");
+                        }
+                    }
+                    System.out.println("checking requests");
+                }
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        });
+        requestsThread.setDaemon(true);
+        requestsThread.start();
 
     }
 
