@@ -125,8 +125,8 @@ public class GUIComponents {
             } else if (cevap.equals("addfriend unsuccessful")) {
                 WarningWindowController.warningMessage("Friend could not added!");
             }
-            Function2.getFriendRequests();
-            Function2.getFriends();
+            Function.getFriendRequests();
+            Function.getFriends();
         };
         return event;
     }
@@ -141,7 +141,7 @@ public class GUIComponents {
             } else if (cevap.equals("rejection unsuccessful")){
                 WarningWindowController.warningMessage("Request could not rejected!");
             }
-            Function2.getFriendRequests();
+            Function.getFriendRequests();
         };
         return event;
     }
@@ -198,7 +198,7 @@ public class GUIComponents {
         borderPane.setRight(hBox);
 
         //Create an action when border pane is clicked.
-        borderPane.setOnMouseClicked((event)-> Function2.getClickedFriend(friendPhoto,friendName, borderPane));
+        borderPane.setOnMouseClicked((event)-> Function.getClickedFriend(friendPhoto,friendName, borderPane));
         return borderPane;
     }
 

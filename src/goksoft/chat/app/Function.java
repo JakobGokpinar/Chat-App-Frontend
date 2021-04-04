@@ -3,8 +3,6 @@ package goksoft.chat.app;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,32 +19,24 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class Function2 {
+public class Function {
 
     public static BorderPane chatBorderPane;
     public static BorderPane settingsBorderPane;
@@ -82,52 +72,52 @@ public class Function2 {
     public static int currentTimer;
     public static ArrayList<String> friendRequestNameList  = new ArrayList<>();
 
-    //Constructor of the Function2 class
-    public Function2(BorderPane chatBorderPane, BorderPane settingsBorderPane, HBox operationsHBox, ScrollPane friendScrollPane,VBox mixedVBox,VBox friendSection, VBox mailboxSection, VBox addFriendSection,
-                     VBox friendsVBox, VBox notificationVBox, VBox usersVBox,VBox settingsTopVBox, TextField searchUserField,TextField searchFriendField, Circle profilePhoto, Circle settingsButton,
-                     Button mailboxButton, Circle chatFriendProfilePhoto, Label chatFriendName, TextField messageField,
-                     ListView<String> listView, ChoiceBox<String> languageChoiceBox, String currentFriend, ArrayList<String> friendsNameList,
-                     List<Object> friendArray,Label noFriendLabel,Label noNotifLabel,Label noUserLabel,RadioButton darkThemeButton){
-        Function2.chatBorderPane = chatBorderPane;
-        Function2.settingsBorderPane = settingsBorderPane;
-        Function2.operationsHBox = operationsHBox;
-        Function2.friendScrollPane = friendScrollPane;
-        Function2.mixedVBox = mixedVBox;
-        Function2.friendSection = friendSection;
-        Function2.mailboxSection = mailboxSection;
-        Function2.addFriendSection = addFriendSection;
-        Function2.friendsVBox = friendsVBox;
-        Function2.notificationVBox = notificationVBox;
-        Function2.usersVBox = usersVBox;
-        Function2.settingsTopVBox = settingsTopVBox;
-        Function2.searchUserField = searchUserField;
-        Function2.searchFriendField = searchFriendField;
-        Function2.profilePhoto = profilePhoto;
-        Function2.settingsButton = settingsButton;
-        Function2.mailboxButton = mailboxButton;
-        Function2.chatFriendProfilePhoto = chatFriendProfilePhoto;
-        Function2.chatFriendName = chatFriendName;
-        Function2.messageField = messageField;
-        Function2.listView = listView;
-        Function2.languageChoiceBox = languageChoiceBox;
-        Function2.currentFriend = currentFriend;
-        Function2.friendsNameList = friendsNameList;
-        Function2.friendArray = friendArray;
-        Function2.noFriendLabel = noFriendLabel;
-        Function2.noNotifLabel = noNotifLabel;
-        Function2.noUserLabel = noUserLabel;
-        Function2.darkThemeButton = darkThemeButton;
+    //Constructor of the Function class
+    public Function(BorderPane chatBorderPane, BorderPane settingsBorderPane, HBox operationsHBox, ScrollPane friendScrollPane, VBox mixedVBox, VBox friendSection, VBox mailboxSection, VBox addFriendSection,
+                    VBox friendsVBox, VBox notificationVBox, VBox usersVBox, VBox settingsTopVBox, TextField searchUserField, TextField searchFriendField, Circle profilePhoto, Circle settingsButton,
+                    Button mailboxButton, Circle chatFriendProfilePhoto, Label chatFriendName, TextField messageField,
+                    ListView<String> listView, ChoiceBox<String> languageChoiceBox, String currentFriend, ArrayList<String> friendsNameList,
+                    List<Object> friendArray, Label noFriendLabel, Label noNotifLabel, Label noUserLabel, RadioButton darkThemeButton){
+        Function.chatBorderPane = chatBorderPane;
+        Function.settingsBorderPane = settingsBorderPane;
+        Function.operationsHBox = operationsHBox;
+        Function.friendScrollPane = friendScrollPane;
+        Function.mixedVBox = mixedVBox;
+        Function.friendSection = friendSection;
+        Function.mailboxSection = mailboxSection;
+        Function.addFriendSection = addFriendSection;
+        Function.friendsVBox = friendsVBox;
+        Function.notificationVBox = notificationVBox;
+        Function.usersVBox = usersVBox;
+        Function.settingsTopVBox = settingsTopVBox;
+        Function.searchUserField = searchUserField;
+        Function.searchFriendField = searchFriendField;
+        Function.profilePhoto = profilePhoto;
+        Function.settingsButton = settingsButton;
+        Function.mailboxButton = mailboxButton;
+        Function.chatFriendProfilePhoto = chatFriendProfilePhoto;
+        Function.chatFriendName = chatFriendName;
+        Function.messageField = messageField;
+        Function.listView = listView;
+        Function.languageChoiceBox = languageChoiceBox;
+        Function.currentFriend = currentFriend;
+        Function.friendsNameList = friendsNameList;
+        Function.friendArray = friendArray;
+        Function.noFriendLabel = noFriendLabel;
+        Function.noNotifLabel = noNotifLabel;
+        Function.noUserLabel = noUserLabel;
+        Function.darkThemeButton = darkThemeButton;
     }
 
     public static void getClickedFriend(Image friendPhoto, String friendName, BorderPane pane){
 
-        Function2.chatFriendName.setText(friendName);
-        Function2.chatFriendProfilePhoto.setFill(new ImagePattern(friendPhoto));
-        Function2.chatFriendProfilePhoto.setStrokeWidth(0);
-        Function2.chatBorderPane.setVisible(true);
-        Function2.settingsBorderPane.setVisible(false);
-        Function2.currentFriend = friendName;
-        Function2.currentPane = pane;
+        Function.chatFriendName.setText(friendName);
+        Function.chatFriendProfilePhoto.setFill(new ImagePattern(friendPhoto));
+        Function.chatFriendProfilePhoto.setStrokeWidth(0);
+        Function.chatBorderPane.setVisible(true);
+        Function.settingsBorderPane.setVisible(false);
+        Function.currentFriend = friendName;
+        Function.currentPane = pane;
 
         final String curFriend = ServerFunctions.encodeURL(currentFriend);
         Thread thread = new Thread(()-> {
@@ -141,7 +131,7 @@ public class Function2 {
                     System.out.println("notif count: " + cevap);
                     Thread.sleep(1000);
                     if (!cevap.equals("0"))
-                        Platform.runLater(Function2::getMessages);
+                        Platform.runLater(Function::getMessages);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -149,7 +139,7 @@ public class Function2 {
         });
         thread.start();
         getMessages();
-        Function2.chatBorderPane.getScene().getWindow().setOnCloseRequest(e -> System.exit(0));
+        Function.chatBorderPane.getScene().getWindow().setOnCloseRequest(e -> System.exit(0));
     }
 
     //Show no match labels.
@@ -699,7 +689,7 @@ public class Function2 {
     public static void logOff(MouseEvent event){
         try{
             //Load login scene with a new stage and hide the former one.
-            FXMLLoader loader = new FXMLLoader(Function2.class.getResource("userinterfaces/login.fxml"));
+            FXMLLoader loader = new FXMLLoader(Function.class.getResource("userinterfaces/login.fxml"));
             Parent loginPanel = loader.load();
             Scene scene = new Scene(loginPanel);
             Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -728,7 +718,7 @@ public class Function2 {
     //Load the contact panel
     public static void contactUs(MouseEvent event){
         try {
-            FXMLLoader loader = new FXMLLoader(Function2.class.getResource("userinterfaces/ContactPanel.fxml"));
+            FXMLLoader loader = new FXMLLoader(Function.class.getResource("userinterfaces/ContactPanel.fxml"));
             Parent contactPanel = loader.load();
             Scene scene = new Scene(contactPanel);
             Stage newWindow = new Stage();

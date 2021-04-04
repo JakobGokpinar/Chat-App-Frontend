@@ -146,7 +146,7 @@ public class LoginController{
         else {
             try {
                 loggedUser = usernameField.getText();
-                Parent mainPanel = FXMLLoader.load(getClass().getResource("userinterfaces/panel2.fxml")); //Load main panel
+                Parent mainPanel = FXMLLoader.load(getClass().getResource("userinterfaces/MainPanel.fxml")); //Load main panel
                 Scene scene = new Scene(mainPanel); //Create a scene with main panel
                 Stage stage = (Stage) textField.getScene().getWindow();
                 stage.close(); //Hide current stage with login panel

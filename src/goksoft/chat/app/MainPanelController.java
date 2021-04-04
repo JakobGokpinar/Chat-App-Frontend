@@ -3,11 +3,9 @@ package goksoft.chat.app;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -20,18 +18,11 @@ import javafx.stage.Stage;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-public class Controller2 extends HBox{
+public class MainPanelController extends HBox{
     @FXML private SplitPane splitPane;
     @FXML private TextField searchFriendField;
     @FXML private BorderPane chatBorderPane;
@@ -76,15 +67,15 @@ public class Controller2 extends HBox{
     public void initialize(){
         noUserLabel.setPadding(new Insets(25,0,0,0));
 
-        new Function2(chatBorderPane, settingsBorderPane, operationsHBox, friendScrollPane,mixedVBox, friendSection, mailboxSection, addFriendSection,
+        new Function(chatBorderPane, settingsBorderPane, operationsHBox, friendScrollPane,mixedVBox, friendSection, mailboxSection, addFriendSection,
                 friendsVBox,notificationVBox,usersVBox,settingsTopVBox,searchUserField,searchFriendField,profilePhoto, settingsButton, mailboxButton, chatFriendProfilePhoto, chatFriendName,  messageField,
                 listView,  languageChoiceBox,  currentFriend,  friendsNameList,
                 friendArray,noFriendLabel,noNotifLabel,noUserLabel,darkThemeButton);
 
-        Function2.getFriends();
-        Function2.getProfilePhoto(false);
-        Function2.getFriendRequests();
-        Function2.getLanguages();
+        Function.getFriends();
+        Function.getProfilePhoto(false);
+        Function.getFriendRequests();
+        Function.getLanguages();
 
         settingsUsername.setText(LoginController.loggedUser);
         messageField.setOnKeyReleased(event -> {    //Bind Enter to send messages
@@ -153,10 +144,10 @@ public class Controller2 extends HBox{
                     for (int i = 0; i < jsonArray.size(); i++) {
                         int finalI = i;
                         String username = jsonArray.get(finalI).toString();
-                        if(!Function2.friendRequestNameList.contains(username)){
+                        if(!Function.friendRequestNameList.contains(username)){
                             Platform.runLater(() -> notificationVBox.getChildren().add(0,GUIComponents.requestBox(username)));
-                            Function2.friendRequestNameList.add(username);
-                            Function2.dropShadowEffect(Color.RED,0.60,1,1,15,mailboxButton);
+                            Function.friendRequestNameList.add(username);
+                            Function.dropShadowEffect(Color.RED,0.60,1,1,15,mailboxButton);
                             System.out.println("new request");
                         }
                     }
@@ -175,23 +166,23 @@ public class Controller2 extends HBox{
     }
 
     public void sendMessage(){
-        Function2.sendMessage();
+        Function.sendMessage();
     }
 
     public void searchUsers(KeyEvent event){
-        Function2.searchOnUsers(event);
+        Function.searchOnUsers(event);
     }
 
     public void searchFriend(KeyEvent event){
-        Function2.searchFriend(event);
+        Function.searchFriend(event);
     }
 
     public void openAddFriend(MouseEvent event){
-        Function2.openAndCloseSections(addFriendSection.isManaged(),addFriendSection);
+        Function.openAndCloseSections(addFriendSection.isManaged(),addFriendSection);
     }
 
     public void openMailbox(MouseEvent event){
-        Function2.openAndCloseSections(mailboxSection.isManaged(),mailboxSection);
+        Function.openAndCloseSections(mailboxSection.isManaged(),mailboxSection);
     }
 
     //Switch between Settings and Chat secions
@@ -206,16 +197,16 @@ public class Controller2 extends HBox{
     }
 
     public void onMouseEnterProfilePhoto(MouseEvent event){
-        Function2.getProfilePhoto(true);
+        Function.getProfilePhoto(true);
     }
 
     public void onMouseExitProfilePhoto(MouseEvent event){
-        Function2.getProfilePhoto(false);
+        Function.getProfilePhoto(false);
     }
 
     public void changeProfilePhoto(MouseEvent event){
-        Function2.changeProfilePhoto(event);
-        Function2.getProfilePhoto(false);
+        Function.changeProfilePhoto(event);
+        Function.getProfilePhoto(false);
     }
 
     //under development
@@ -251,10 +242,10 @@ public class Controller2 extends HBox{
     }
 
     public void logOff(MouseEvent event){
-        Function2.logOff(event);
+        Function.logOff(event);
     }
 
     public void contactUs(MouseEvent event){
-        Function2.contactUs(event);
+        Function.contactUs(event);
     }
 }
