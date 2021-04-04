@@ -3,6 +3,7 @@ package goksoft.chat.app;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Function {
 
@@ -155,9 +157,7 @@ public class Function {
 
     //Get logged in user's profile photo
     public static void getProfilePhoto(boolean mouse) {
-        final String imageName = ServerFunctions.encodeURL(GlobalVariables.getLoggedUser());
-
-        Image image = GUIComponents.returnPhoto(imageName);
+        Image image = GUIComponents.returnPhoto(GlobalVariables.getLoggedUser());
         Platform.runLater(() -> {
             if (image.isError()){ //Fill profile photo in blue if image has error
                 profilePhoto.setFill(Color.DODGERBLUE);
@@ -684,6 +684,18 @@ public class Function {
             friendSection.setVisible(true);
             friendSection.setManaged(true);
         }
+    }
+
+    public static void switchBetweenRegisterAndLogin(Event event, String scene){
+        Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        if (scene.equals("login")){
+             window.setScene(GlobalVariables.loginScene);
+        }
+        if (scene.equals("register")){
+            window.setScene(GlobalVariables.registerScene);
+        }
+
+        window.setTitle(Character.toUpperCase(scene.charAt(0)) + scene.substring(1));
     }
 
     public static void logOff(MouseEvent event){

@@ -2,7 +2,6 @@ package goksoft.chat.app;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -31,7 +30,7 @@ public class LoginController{
     public static String loggedUser;
 
     @FXML
-    public void initialize(){
+    public void initialize() throws FileNotFoundException {
         //Login by pressing enter
         usernameField.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) signIn();
@@ -42,25 +41,18 @@ public class LoginController{
         signinbutton.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) signIn();
         });
-    }
-
-    public void setUsernameField(String text){ usernameField.setText(text); }
-
-    public void setPasswordField(String text){
-        passwordField.setText(text);
+        rememberMeFill();
     }
 
     //Switch to register scene from login scene
     public void changeSceneToRegister(MouseEvent event){
-        try {
-            Parent registerRoot = FXMLLoader.load(getClass().getResource("userinterfaces/register.fxml"));
-            Scene registerScene = new Scene(registerRoot);
-            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            window.setScene(registerScene);
-            window.setTitle("Register");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Function.switchBetweenRegisterAndLogin(event,"register");
+    }
+
+    public  void setUsernameField(String text){ usernameField.setText(text); }
+
+    public  void setPasswordField(String text){
+        passwordField.setText(text);
     }
 
     //Save the user's username and password in settings.txt file if remember me checkbox is selected.
@@ -69,7 +61,7 @@ public class LoginController{
             File file = new File(System.getProperty("user.home") + "/settings.txt");
             FileWriter writer = new FileWriter(file);
             if(rememberMeButton.isSelected()){
-                writer.write("rememberme:true " + usernameField.getText() + " " + passwordField.getText());
+                writer.write("rememberme:true\n" + "username:"+usernameField.getText() + "\n" + "pass:"+passwordField.getText());
                 writer.close();
             } else {
                 writer.write("rememberme:false");
@@ -80,32 +72,24 @@ public class LoginController{
         }
     }
 
-    //Check if remember me is true
-    public boolean isRememberMe() throws FileNotFoundException {
-        File file = new File(System.getProperty("user.home") + "/settings.txt");    //get settings.txt file
-        if(file.exists()){
-            Scanner scanner = new Scanner(file); //read the file
-            while(scanner.hasNextLine()){
-                String line = scanner.nextLine(); //Read the next line
-                if(line.contains("rememberme:true")){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public void rememberMeFill() throws FileNotFoundException {
+    public  void rememberMeFill() throws FileNotFoundException {
         File file = new File(System.getProperty("user.home") + "/settings.txt");
-        Scanner scanner = new Scanner(file);
-        while (scanner.hasNextLine()){
-            String line = scanner.nextLine();
-            if(line.contains("rememberme:true")){
-                String[] array = line.split(" "); //Parse the datas from line by " ".
-                if(array.length == 3){  //Check if line contains both username and password
-                    setUsernameField(array[1]);
-                    setPasswordField(array[2]);
-                    rememberMeButton.setSelected(true);
+        if (file.exists()){
+            Scanner scanner = new Scanner(file);
+            while (scanner.hasNextLine()){
+                String line = scanner.nextLine();
+                if(line.equals("rememberme:true")){
+                    line = scanner.nextLine();
+                    if (line.contains("username:")){
+                        String[] user = line.split(":");
+                        setUsernameField(user[1]);
+                        line = scanner.nextLine();
+                        if (line.contains("pass:")){
+                            user = line.split(":");
+                            setPasswordField(user[1]);
+                            rememberMeButton.setSelected(true);
+                        }
+                    }
                 }
             }
         }
@@ -146,7 +130,8 @@ public class LoginController{
         else {
             try {
                 loggedUser = usernameField.getText();
-                Parent mainPanel = FXMLLoader.load(getClass().getResource("userinterfaces/MainPanel.fxml")); //Load main panel
+                GlobalVariables.setLoggedUser(loggedUser);
+                Parent mainPanel = FXMLLoader.load(LoginController.class.getResource("userinterfaces/MainPanel.fxml")); //Load main panel
                 Scene scene = new Scene(mainPanel); //Create a scene with main panel
                 Stage stage = (Stage) textField.getScene().getWindow();
                 stage.close(); //Hide current stage with login panel

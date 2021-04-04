@@ -2,17 +2,11 @@ package goksoft.chat.app;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
-
-import java.io.IOException;
+import java.io.FileNotFoundException;
 
 public class RegisterController{
 
@@ -29,16 +23,8 @@ public class RegisterController{
     @FXML
     private CheckBox showPasswordsButton;
 
-    public void changeSceneToLogin(ActionEvent event){
-        try {
-            Parent loginRoot = FXMLLoader.load(getClass().getResource("userinterfaces/login.fxml"));
-            Scene loginScene = new Scene(loginRoot);
-            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            window.setScene(loginScene);
-            window.setTitle("Login");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void changeSceneToLogin(ActionEvent event) throws FileNotFoundException {
+        Function.switchBetweenRegisterAndLogin(event,"login");
     }
 
     public void showPasswords(){
