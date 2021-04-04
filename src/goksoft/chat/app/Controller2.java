@@ -25,7 +25,11 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Controller2 extends HBox{
     @FXML private SplitPane splitPane;
@@ -65,6 +69,8 @@ public class Controller2 extends HBox{
     ArrayList<String> friendRequestsNameList;
     List<Object> friendArray;
 
+    public static ExecutorService executorService;
+
     //Execute on program start
     @FXML
     public void initialize(){
@@ -96,7 +102,7 @@ public class Controller2 extends HBox{
 
         Thread statsThread = new Thread(() -> {
             try {
-                while(true){
+                while(GlobalVariables.isThread){
                     Thread.sleep(1000);
 
                     String friendArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getFriends.php","");
@@ -113,32 +119,17 @@ public class Controller2 extends HBox{
                         String lastMsg = jsonArray2.get(2).toString();
                         String passedTime = jsonArray2.get(3).toString();
 
-                        final String imageName = username;
-                        BufferedImage image;
-
-                        try {
-                            image = ImageIO.read(new URL(ServerFunctions.serverURL + "/getProfilePhoto.php?username=" + imageName));
-                            Image imagefx = SwingFXUtils.toFXImage(image, null);
-
-                            BorderPane friend = Function2.friendBox(imagefx,username,lastMsg,notifcount,passedTime);
-                            friend.setId(username);
-
-                            //Find the friend by his pane's id and update his status.
-                            for (int j = 0; j < friendsVBox.getChildren().size(); j++) {
-                                if (friendsVBox.getChildren().get(j).getId().equals(username)){
-                                    int finalJ = j;
-                                    Platform.runLater(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            friendsVBox.getChildren().remove(finalJ);
-                                            friendsVBox.getChildren().add(index[0],friend);
-                                            index[0]++;
-                                        }
-                                    });
-                                }
+                        BorderPane friend = GUIComponents.friendBox(username,lastMsg,notifcount,passedTime);
+                        //Find the friend by his pane's id and update his status.
+                        for (int j = 0; j < friendsVBox.getChildren().size(); j++) {
+                            if (friendsVBox.getChildren().get(j).getId().equals(username)){
+                                int finalJ = j;
+                                Platform.runLater(() -> {
+                                    friendsVBox.getChildren().remove(finalJ);
+                                    friendsVBox.getChildren().add(index[0],friend);
+                                    index[0]++;
+                                });
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
                     }
                     System.out.println("stats...");
@@ -150,11 +141,10 @@ public class Controller2 extends HBox{
         statsThread.setDaemon(true);
         statsThread.start();
 
-
         Thread requestsThread = new Thread(() -> {
             try {
-                while (true) {
-                    Thread.sleep(1000 * 5);
+                while (GlobalVariables.isThread) {
+                    Thread.sleep(1000 * 20);
 
                     String stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getRequests.php", "");
                     System.out.println(stringArray);
@@ -164,7 +154,7 @@ public class Controller2 extends HBox{
                         int finalI = i;
                         String username = jsonArray.get(finalI).toString();
                         if(!Function2.friendRequestNameList.contains(username)){
-                            Platform.runLater(() -> notificationVBox.getChildren().add(0,Function2.requestBox(username)));
+                            Platform.runLater(() -> notificationVBox.getChildren().add(0,GUIComponents.requestBox(username)));
                             Function2.friendRequestNameList.add(username);
                             Function2.dropShadowEffect(Color.RED,0.60,1,1,15,mailboxButton);
                             System.out.println("new request");
@@ -178,7 +168,6 @@ public class Controller2 extends HBox{
         });
         requestsThread.setDaemon(true);
         requestsThread.start();
-
     }
 
     public Stage getStage(){
@@ -235,9 +224,9 @@ public class Controller2 extends HBox{
         try {
             String result = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/changePassword.php","password=" + newpass);
             if (result.equals("password changed")){
-                Function2.warningMessage("Password successfully changed!");
+                WarningWindowController.warningMessage("Password successfully changed!");
             } else{
-                Function2.warningMessage("Password couldn't changed!");
+                WarningWindowController.warningMessage("Password couldn't changed!");
             }
             System.out.println(result);
         } catch (Exception e) {
@@ -251,9 +240,9 @@ public class Controller2 extends HBox{
         try {
             String result = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/changeUsername.php","username=" + newusername);
             if (result.equals("username changed")){
-                Function2.warningMessage("Username successfully changed!");
+                WarningWindowController.warningMessage("Username successfully changed!");
             } else{
-                Function2.warningMessage("Username couldn't changed!");
+                WarningWindowController.warningMessage("Username couldn't changed!");
             }
             System.out.println("change username: " + result);
         } catch (Exception e) {

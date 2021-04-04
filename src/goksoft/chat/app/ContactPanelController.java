@@ -22,16 +22,12 @@ public class ContactPanelController {
         String message = messageArea.getText();
         message = ServerFunctions.encodeURL(message);
 
-        try {
-            if (email.equals("") || email.equals(" ") || subject.equals(" ") || subject.equals("") || message.equals(" ") || message.equals("")){
-                Function2.warningMessage("Please fill out all the spaces!");
-                return;
-            }
-            String response = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/sendmail.php", "email=" + email + "&subject=" + subject + "&message=" + message);
-            System.out.println(response);
-            Function2.warningMessage(response);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (email.equals("") || email.equals(" ") || subject.equals(" ") || subject.equals("") || message.equals(" ") || message.equals("")){
+            WarningWindowController.warningMessage("Please fill out all the spaces!");
+            return;
         }
+        String response = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/sendmail.php", "email=" + email + "&subject=" + subject + "&message=" + message);
+        System.out.println(response);
+        WarningWindowController.warningMessage(response);
     }
 }

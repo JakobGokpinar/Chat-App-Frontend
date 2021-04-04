@@ -11,9 +11,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,29 +21,25 @@ import java.util.Scanner;
 
 public class LoginController{
 
-    @FXML
-    private TextField usernameField;
-    @FXML
-    private PasswordField passwordField;
-    @FXML
-    private TextField textField;
-    @FXML
-    private CheckBox rememberMeButton;
-    @FXML
-    private CheckBox showPasswordButton;
-    @FXML private Button signinButton;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+    @FXML private TextField textField;
+    @FXML private CheckBox rememberMeButton;
+    @FXML private CheckBox showPasswordButton;
+    @FXML private Button signinbutton;
 
     public static String loggedUser;
 
     @FXML
     public void initialize(){
-        usernameField.setOnKeyReleased(event -> {    //Login by pressing enter
+        //Login by pressing enter
+        usernameField.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) signIn();
         });
         passwordField.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) signIn();
         });
-        signinButton.setOnKeyReleased(event -> {
+        signinbutton.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) signIn();
         });
     }
@@ -89,10 +83,8 @@ public class LoginController{
     //Check if remember me is true
     public boolean isRememberMe() throws FileNotFoundException {
         File file = new File(System.getProperty("user.home") + "/settings.txt");    //get settings.txt file
-
         if(file.exists()){
             Scanner scanner = new Scanner(file); //read the file
-
             while(scanner.hasNextLine()){
                 String line = scanner.nextLine(); //Read the next line
                 if(line.contains("rememberme:true")){
@@ -142,20 +134,14 @@ public class LoginController{
         String name = ServerFunctions.encodeURL(usernameField.getText());
         String pass = ServerFunctions.encodeURL(passwordField.getText());
 
-        String cevap;
-        try{
-            //Send request to server with parameters.
-            cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/login.php", "username=" + name + "&password=" + pass);
-            System.out.println(cevap);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
+        //Send request to server with parameters.
+        String cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/login.php", "username=" + name + "&password=" + pass);
+        System.out.println(cevap);
 
         //Check the response if it is successful
         if(!cevap.equals("login successful")){
             String warningMessage = "Wrong password or username!";
-            Function2.warningMessage(warningMessage);
+            WarningWindowController.warningMessage(warningMessage);
         }
         else {
             try {
@@ -163,8 +149,7 @@ public class LoginController{
                 Parent mainPanel = FXMLLoader.load(getClass().getResource("userinterfaces/panel2.fxml")); //Load main panel
                 Scene scene = new Scene(mainPanel); //Create a scene with main panel
                 Stage stage = (Stage) textField.getScene().getWindow();
-                //Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow(); //Get stage
-                stage.hide(); //Hide current stage with login panel
+                stage.close(); //Hide current stage with login panel
                 Stage newStage = new Stage(); //Create new stage
                 newStage.setScene(scene); //Set new stage's scene with main panel
                 newStage.setTitle("Chat"); //Set the stage's title

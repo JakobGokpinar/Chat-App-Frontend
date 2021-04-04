@@ -31,7 +31,7 @@
                   <Font name="Myanmar Text" size="12.0" />
                </font>
             </CheckBox>
-            <Button fx:id="signinButton" layoutX="66.0" layoutY="238.0" mnemonicParsing="false" onMouseClicked="#signInButton" prefHeight="38.0" prefWidth="190.0" style="-fx-background-color: purple;" text="Sign In" textFill="WHITE">
+            <Button fx:id="signinbutton" layoutX="66.0" layoutY="238.0" mnemonicParsing="false" onMouseClicked="#signInButton" prefHeight="38.0" prefWidth="190.0" style="-fx-background-color: purple;" text="Sign In" textFill="WHITE">
                <font>
                   <Font size="16.0" />
                </font>

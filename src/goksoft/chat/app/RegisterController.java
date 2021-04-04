@@ -69,17 +69,17 @@ public class RegisterController{
         }
         if(usernameField.getText().equals("") || usernameField.getText().equals(" ") || password1Field.getText().equals(" ") || password1Field.getText().equals("") || password2Field.getText().equals(" ") || password2Field.getText().equals("")){
             String warning = "Fill out all places!";
-            Function2.warningMessage(warning);
+            WarningWindowController.warningMessage(warning);
             return;
         }
         if(!password1Field.getText().equals(password2Field.getText())){
             String warning = "Passwords are not matching!";
-            Function2.warningMessage(warning);
+            WarningWindowController.warningMessage(warning);
             return;
         }
         if(password1Field.getText().length() < 4 || password2Field.getText().length() < 4){
             String warning = "Password must be at least 4 characters length!";
-            Function2.warningMessage(warning);
+            WarningWindowController.warningMessage(warning);
             return;
         }
 
@@ -95,11 +95,11 @@ public class RegisterController{
 
         if(response.equals("register successful")){
             String warning = "Registration successful!";
-            Function2.warningMessage(warning);
+            WarningWindowController.warningMessage(warning);
 
         } else {
             String warning = "An error occurred! Could not complete your registration!";
-            Function2.warningMessage(warning);
+            WarningWindowController.warningMessage(warning);
         }
 
     }

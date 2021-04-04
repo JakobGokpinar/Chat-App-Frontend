@@ -42,6 +42,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Function2 {
 
@@ -122,6 +125,7 @@ public class Function2 {
         Function2.chatFriendProfilePhoto.setFill(new ImagePattern(friendPhoto));
         Function2.chatFriendProfilePhoto.setStrokeWidth(0);
         Function2.chatBorderPane.setVisible(true);
+        Function2.settingsBorderPane.setVisible(false);
         Function2.currentFriend = friendName;
         Function2.currentPane = pane;
 
@@ -129,21 +133,22 @@ public class Function2 {
         Thread thread = new Thread(()-> {
             currentTimer = (int) (Math.random() * 1000);
             int selv = currentTimer;
-                while(selv == currentTimer) {
-                    try {
-                        /*Get notification count from the server. If count is more than 0, it means it has been sent a message from opponent side.
-                        Get all messages.*/
-
-                        String cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/checkNotif.php", "chatter=" + curFriend);
-                        Thread.sleep(1000);
-                        if (!cevap.equals("0"))
-                            Platform.runLater(Function2::getMessages);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+            while(selv == currentTimer && GlobalVariables.isThread) {
+                try {
+                    /*Get notification count from the server. If count is more than 0, it means it has been sent a message from opponent side.
+                    Get all messages.*/
+                    String cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/checkNotif.php", "chatter=" + curFriend);
+                    System.out.println("notif count: " + cevap);
+                    Thread.sleep(1000);
+                    if (!cevap.equals("0"))
+                        Platform.runLater(Function2::getMessages);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+            }
         });
         thread.start();
+        getMessages();
         Function2.chatBorderPane.getScene().getWindow().setOnCloseRequest(e -> System.exit(0));
     }
 
@@ -160,35 +165,26 @@ public class Function2 {
 
     //Get logged in user's profile photo
     public static void getProfilePhoto(boolean mouse) {
-        final String imageName = ServerFunctions.encodeURL(LoginController.loggedUser);
-        Thread thread = new Thread(() -> {
-            BufferedImage image;
-            try {
-                //Get the image from server and convert it to BufferedImage to use in JavaFX
-                image = ImageIO.read(new URL(ServerFunctions.serverURL + "/getProfilePhoto.php?username=" + imageName));
-                Image imagefx = SwingFXUtils.toFXImage(image, null);
+        final String imageName = ServerFunctions.encodeURL(GlobalVariables.getLoggedUser());
 
-                Platform.runLater(() -> {
-                    if (imagefx.isError()){ //Fill profile photo in blue if image has error
-                        profilePhoto.setFill(Color.DODGERBLUE);
-                    } else {
-                        profilePhoto.setFill(new ImagePattern(imagefx));
-                        settingsButton.setFill(new ImagePattern(imagefx)); //Set image into the circle at bottom-left.
-                    }
-                    //Fill profile photo with black when mouseEvent is true
-                    if (mouse){
-                        profilePhoto.setFill(Color.BLACK);
-                        Tooltip.install(
-                                profilePhoto,
-                                new Tooltip("Change Profile Photo")
-                        );
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
+        Image image = GUIComponents.returnPhoto(imageName);
+        Platform.runLater(() -> {
+            if (image.isError()){ //Fill profile photo in blue if image has error
+                profilePhoto.setFill(Color.DODGERBLUE);
+            } else {
+                profilePhoto.setFill(new ImagePattern(image));
+                settingsButton.setFill(new ImagePattern(image)); //Set image into the circle at bottom-left.
+            }
+            //Fill profile photo with black when mouseEvent is true
+            if (mouse){
+                profilePhoto.setFill(Color.BLACK);
+                Tooltip.install(
+                        profilePhoto,
+                        new Tooltip("Change Profile Photo")
+                );
             }
         });
-        thread.start();
+
     }
 
     public static void getFriends(){
@@ -199,7 +195,6 @@ public class Function2 {
 
         Thread thread = new Thread(() -> {
             try {
-
                 String stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getFriends.php", ""); //Receive the returned json array from server
                 System.out.println(stringArray);
                 //Parse json array to use properly in java
@@ -208,34 +203,16 @@ public class Function2 {
 
                 for(int i = 0; i<jsonArray.size(); i++){
                     JSONArray jsonArray2 = (JSONArray) jsonArray.get(i); //Get each row from array
-                    /*array[0] = friend's username
-                    array[1] = notification count
-                    array[2] = last message
-                    array[3] = passed days since last chat*/
-                    final String imageName = ServerFunctions.encodeURL(jsonArray2.get(0).toString()); //Get friend username to receive its photo from server
+                    String username = jsonArray2.get(0).toString();
+                    String notifcount = jsonArray2.get(1).toString();
+                    String lastMsg = jsonArray2.get(2).toString();
+                    String passedTime = jsonArray2.get(3).toString();
 
-                    BufferedImage image;
-
-                        try {
-                            //Get profile photo and make it proper for JavaFx
-                            image = ImageIO.read(new URL(ServerFunctions.serverURL + "/getProfilePhoto.php?username=" + imageName));
-                            Image imagefx = SwingFXUtils.toFXImage(image, null);
-                            int notifcount = Integer.parseInt(jsonArray2.get(1).toString());
-                            //Create a new borderpane box for the friend with received information from server.
-                            BorderPane friend = friendBox(imagefx,jsonArray2.get(0).toString(),jsonArray2.get(2).toString(),jsonArray2.get(1).toString(),jsonArray2.get(3).toString());
-                            //Show the friend at the top of the list if there is a new or unread message. Add to next index if there is not.
-                            friendArray.add(friendArray.size(),friend);
-                            friendsNameList.add(jsonArray2.get(0).toString());
-                            /*if (notifcount > 0){
-                                friendArray.add(0,friend); //Add friend to the list
-                                friendsNameList.add(0,jsonArray2.get(0).toString()); //Add friend's name to the list to make search later.
-                            } else{
-                                friendArray.add(friendArray.size(),friend);
-                                friendsNameList.add(jsonArray2.get(0).toString());
-                            }*/
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    //Create a new borderpane box for the friend with received information from server.
+                    BorderPane friend = GUIComponents.friendBox(username,lastMsg,notifcount,passedTime);
+                    //Show the friend at the top of the list if there is a new or unread message. Add to next index if there is not.
+                    friendArray.add(friendArray.size(),friend);
+                    friendsNameList.add(jsonArray2.get(0).toString());
                 }
                 //Get each friend from the list and add them to the friendsVBox to make them visible in the app
                 for (Object element : friendArray) {
@@ -263,7 +240,7 @@ public class Function2 {
                 for(int i = 0; i<jsonArray.size(); i++){
                     int finalI = i;
                     String username = jsonArray.get(finalI).toString();
-                    Platform.runLater(() -> notificationVBox.getChildren().add(0,requestBox(username)));
+                    Platform.runLater(() -> notificationVBox.getChildren().add(0,GUIComponents.requestBox(username)));
                     friendRequestNameList.add(username);
                 }
                 checkNoResult(stringArray,noNotifLabel);
@@ -293,7 +270,6 @@ public class Function2 {
         shadowAnimation.play();
     }
 
-
     public static void sendMessage(){
         String msg = ServerFunctions.encodeURL(messageField.getText()); //Get typed message
         String curFriend = ServerFunctions.encodeURL(currentFriend); //Get current chatted friend
@@ -301,14 +277,9 @@ public class Function2 {
         messageField.setText(""); //Clear the message field
 
         Thread thread = new Thread(() ->{
-            try {
-                //Send message to the server for the friend to see.
-                String response = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/sendMessage.php","receiver=" + curFriend + "&message=" + msg);
-                System.out.println(response);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return;
-            }
+            //Send message to the server for the friend to see.
+            String response = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/sendMessage.php","receiver=" + curFriend + "&message=" + msg);
+            System.out.println(response);
         });
         thread.start();
         friendScrollPane.setVvalue(friendScrollPane.getHmin());
@@ -322,9 +293,7 @@ public class Function2 {
             String stringArray;
             try {
                 //Send request to server and receive an array of messages with the chatted friend.
-                System.out.println(curFriend);
                 stringArray = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/getMessage.php", "receiver=" + curFriend);
-                System.out.println("string: " + stringArray.toString());
                 JSONParser jsonParser = new JSONParser();
                 JSONArray jsonArray = (JSONArray) jsonParser.parse(stringArray);
                 for (int i = 0; i < jsonArray.size(); i++){
@@ -402,7 +371,8 @@ public class Function2 {
                 //Create box for each possible user and add it to list.
                 for(int i = 0; i<jsonArray.size(); i++){
                     int finalI = i;
-                    Platform.runLater(() -> usersVBox.getChildren().add(0,userBox(jsonArray.get(finalI).toString())));
+                    String username = jsonArray.get(finalI).toString();
+                    Platform.runLater(() -> usersVBox.getChildren().add(0,GUIComponents.userBox(username)));
                 }
                 checkNoResult(stringArray,noUserLabel);
             } catch (Exception e) {
@@ -559,9 +529,9 @@ public class Function2 {
                 String cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/becomeFriend.php", "added=" + senderName.getText());
                 System.out.println(cevap);
                 if (cevap.equals("addfriend successful")){
-                    warningMessage("Friend added!");
+                    WarningWindowController.warningMessage("Friend added!");
                 } else if (cevap.equals("addfriend unsuccessful")){
-                    warningMessage("Friend could not added!");
+                    WarningWindowController.warningMessage("Friend could not added!");
                 }
                 getFriendRequests();
                 getFriends();
@@ -580,9 +550,9 @@ public class Function2 {
                 String cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/rejectUser.php", "blockedUser=" + senderName.getText());
                 System.out.println(cevap);
                 if (cevap.equals("rejection successful")){
-                    warningMessage("Request rejected!");
+                    WarningWindowController.warningMessage("Request rejected!");
                 } else if (cevap.equals("rejection unsuccessful")){
-                    warningMessage("Request could not rejected!");
+                    WarningWindowController.warningMessage("Request could not rejected!");
                 }
                 getFriendRequests();
             } catch (Exception e) {
@@ -651,11 +621,11 @@ public class Function2 {
                 String cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/sendFriendRequest.php", "receiverUser=" + receiverUser);
                 System.out.println(cevap);
                 if (cevap.equals("already friends")){
-                    warningMessage("You're already friends!");
+                    WarningWindowController.warningMessage("You're already friends!");
                 } else if (cevap.equals("request sent")){
-                    warningMessage("New request sent");
+                    WarningWindowController.warningMessage("New request sent");
                 } else if (cevap.equals("already sent")){
-                    warningMessage("You already sent request!");
+                    WarningWindowController.warningMessage("You already sent request!");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -689,13 +659,10 @@ public class Function2 {
                 if(!mixedVBox.getChildren().get(1).getId().equals("addFriendSection")){
                     mixedVBox.getChildren().remove(addFriendSection);
                     mixedVBox.getChildren().add(1,addFriendSection);
-                    timeline.setOnFinished(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent actionEvent) {
-                            currentStage.setTitle("Mailbox");
-                            addFriendSection.setVisible(false);
-                            friendSection.setVisible(false);
-                        }
+                    timeline.setOnFinished(actionEvent -> {
+                        currentStage.setTitle("Mailbox");
+                        addFriendSection.setVisible(false);
+                        friendSection.setVisible(false);
                     });
                 }
             }
@@ -703,13 +670,10 @@ public class Function2 {
                 if(!mixedVBox.getChildren().get(1).getId().equals("mailboxSection")){
                     mixedVBox.getChildren().remove(mailboxSection);
                     mixedVBox.getChildren().add(1,mailboxSection);
-                    timeline.setOnFinished(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent actionEvent) {
-                            currentStage.setTitle("Add Friend");
-                            mailboxSection.setVisible(false);
-                            friendSection.setVisible(false);
-                        }
+                    timeline.setOnFinished(actionEvent -> {
+                        currentStage.setTitle("Add Friend");
+                        mailboxSection.setVisible(false);
+                        friendSection.setVisible(false);
                     });
                 }
             }
@@ -739,7 +703,7 @@ public class Function2 {
             Parent loginPanel = loader.load();
             Scene scene = new Scene(loginPanel);
             Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            window.hide();
+            window.close();
             Stage newWindow = new Stage();
             newWindow.setScene(scene);
             newWindow.setResizable(false);
@@ -748,12 +712,14 @@ public class Function2 {
             newWindow.show();
 
             //Clear stored username and password from settings.txt
+            GlobalVariables.setIsThread(false);
             File file = new File(System.getProperty("user.home") + "/settings.txt");
             if(file.exists()){
-                FileWriter writer = new FileWriter(file);
-                writer.write("");
-                writer.close();
+                //FileWriter writer = new FileWriter(file);
+                //writer.write("");
+                //writer.close();
             }
+            newWindow.setOnCloseRequest(windowEvent -> System.exit(0));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -777,25 +743,6 @@ public class Function2 {
             e.printStackTrace();
         }
     }
-
-    //Load warning window scene with a given text
-    public static void warningMessage(String text){
-        try {
-            FXMLLoader loader = new FXMLLoader(Function2.class.getResource("userinterfaces/warningWindow.fxml"));
-            Parent root = loader.load();
-            WarningWindowController windowController = loader.getController();
-            windowController.setLabelText(text);
-            Scene scene = new Scene(root);
-            Stage stage = new Stage();
-            stage.setResizable(false);
-            stage.setFullScreen(false);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setAlwaysOnTop(true);
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    
 }
 

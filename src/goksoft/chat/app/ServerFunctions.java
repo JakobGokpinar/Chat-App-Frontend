@@ -2,6 +2,7 @@ package goksoft.chat.app;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -29,10 +30,13 @@ public class ServerFunctions {
     }
 
     //Sends requests to server and returns its response.
-    static String HTMLRequestBytes(String URL, byte[] bytes, String type) throws Exception{
+    static String HTMLRequestBytes(String URL, byte[] bytes, String type) {
         StringBuilder output = new StringBuilder("");
         String boundary =  "*****";
-        java.net.URL request_url = new URL(URL);
+        java.net.URL request_url = null;
+        try {
+            request_url = new URL(URL);
+
         HttpURLConnection http_conn = (HttpURLConnection) request_url.openConnection();
         http_conn.setRequestMethod("POST");
         if (type.equals("tip")){
@@ -59,36 +63,44 @@ public class ServerFunctions {
 
         if(cookie == null)
             cookie = http_conn.getHeaderField("set-cookie");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return output.toString();
     }
 
     //Function for changing the profile photo.
-    static String FILERequest(String URL, File file, String name) throws Exception{
+    static String FILERequest(String URL, File file, String name) {
         String attachmentName = name;
         String attachmentFileName = file.getName();
         String crlf = "\r\n";
         String twoHyphens = "--";
         String boundary =  "*****";
+        ByteArrayOutputStream stream = null;
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        stream.write((twoHyphens + boundary + crlf).getBytes());
+        try {
+            stream = new ByteArrayOutputStream();
+            stream.write((twoHyphens + boundary + crlf).getBytes());
 
-        stream.write( ("Content-Disposition: form-data; name=\"" +
-                attachmentName + "\";filename=\"" +
-                attachmentFileName + "\"" + crlf).getBytes() );
+            stream.write(("Content-Disposition: form-data; name=\"" +
+                    attachmentName + "\";filename=\"" +
+                    attachmentFileName + "\"" + crlf).getBytes());
 
-        stream.write(crlf.getBytes());
+            stream.write(crlf.getBytes());
 
-        stream.write(Files.readAllBytes(file.toPath()));
-        stream.write(crlf.getBytes());
-        stream.write((twoHyphens + boundary +
-                twoHyphens + crlf).getBytes() );
+            stream.write(Files.readAllBytes(file.toPath()));
+            stream.write(crlf.getBytes());
+            stream.write((twoHyphens + boundary +
+                    twoHyphens + crlf).getBytes());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
         return HTMLRequestBytes(URL, stream.toByteArray(),"tip");
     }
 
     //Function for sending requests to an exact URL with string-typed parameters and returns the response from server.
-    static String HTMLRequest(String URL, String params) throws Exception{
+    static String HTMLRequest(String URL, String params) {
 
         return HTMLRequestBytes(URL, params.getBytes(),"");
     }
