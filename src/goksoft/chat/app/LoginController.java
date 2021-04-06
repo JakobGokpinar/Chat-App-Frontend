@@ -1,5 +1,8 @@
 package goksoft.chat.app;
 
+import goksoft.chat.app.ErrorClass.ErrorResult;
+import goksoft.chat.app.ErrorClass.Result;
+import goksoft.chat.app.ErrorClass.SuccessResult;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -113,7 +116,7 @@ public class LoginController{
         signIn();
     }
 
-    public void signIn(){
+    public Result signIn(){
         //Get username and password and encode them.
         String name = ServerFunctions.encodeURL(usernameField.getText());
         String pass = ServerFunctions.encodeURL(passwordField.getText());
@@ -125,7 +128,7 @@ public class LoginController{
         //Check the response if it is successful
         if(!cevap.equals("login successful")){
             String warningMessage = "Wrong password or username!";
-            WarningWindowController.warningMessage(warningMessage);
+            return new ErrorResult(warningMessage);
         }
         else {
             try {
@@ -141,8 +144,10 @@ public class LoginController{
                 newStage.show();
             } catch (IOException e) {
                 e.printStackTrace();
+                return new ErrorResult("An Error Occurred");
             }
         }
+        return new SuccessResult();
     }
 
 }

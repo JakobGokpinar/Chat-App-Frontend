@@ -1,5 +1,8 @@
 package goksoft.chat.app;
 
+import goksoft.chat.app.ErrorClass.ErrorResult;
+import goksoft.chat.app.ErrorClass.Result;
+import goksoft.chat.app.ErrorClass.SuccessResult;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -48,45 +51,55 @@ public class RegisterController{
         password2Field.setVisible(true);
     }
 
-    public void registerButton(MouseEvent event){
+    public Result registerButton(MouseEvent event){
         if(showPasswordsButton.isSelected()){
             showPasswordsButton.setSelected(false);
             showPasswords();
         }
-        if(usernameField.getText().equals("") || usernameField.getText().equals(" ") || password1Field.getText().equals(" ") || password1Field.getText().equals("") || password2Field.getText().equals(" ") || password2Field.getText().equals("")){
-            String warning = "Fill out all places!";
-            WarningWindowController.warningMessage(warning);
-            return;
-        }
-        if(!password1Field.getText().equals(password2Field.getText())){
-            String warning = "Passwords are not matching!";
-            WarningWindowController.warningMessage(warning);
-            return;
-        }
-        if(password1Field.getText().length() < 4 || password2Field.getText().length() < 4){
-            String warning = "Password must be at least 4 characters length!";
-            WarningWindowController.warningMessage(warning);
-            return;
+
+        var result = ControllerRules.Run(CheckPlaceEmpty(), CheckLength(), CheckIfNotMatch());
+        if(result != null){
+            return result;
         }
 
         String name = ServerFunctions.encodeURL(usernameField.getText());
         String pass = ServerFunctions.encodeURL(password1Field.getText());
-        String response = "";
-        try{
-            response = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/register.php", "username=" + name + "&password=" + pass);
-            System.out.println(response);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String response = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/register.php", "username=" + name + "&password=" + pass);
+        System.out.println(response);
 
+        return CheckRegisterIsSuccessful(response);
+    }
+
+    private Result CheckPlaceEmpty(){
+        if(usernameField.getText().isBlank() || password1Field.getText().isBlank() || password2Field.getText().isBlank()){
+            String warning = "Please fill out all places!";
+            return new ErrorResult(warning);
+        }
+        return new SuccessResult();
+    }
+
+    private Result CheckLength(){
+        if(password1Field.getText().length() < 4 || password2Field.getText().length() < 4){
+            String warning = "Password must be at least 4 characters length!";
+            return new ErrorResult(warning);
+        }
+        return new SuccessResult();
+    }
+
+    private Result CheckIfNotMatch(){
+        if(!password1Field.getText().equals(password2Field.getText())){
+            String warning = "Passwords are not matching!";
+            return new ErrorResult(warning);
+        }
+        return new SuccessResult();
+    }
+
+    private Result CheckRegisterIsSuccessful(String response){
         if(response.equals("register successful")){
             String warning = "Registration successful!";
-            WarningWindowController.warningMessage(warning);
-
-        } else {
-            String warning = "An error occurred! Could not complete your registration!";
-            WarningWindowController.warningMessage(warning);
+            return new SuccessResult(warning);
         }
-
+        String warning = "An error occurred! Could not complete your registration!";
+        return new ErrorResult(warning);
     }
 }
