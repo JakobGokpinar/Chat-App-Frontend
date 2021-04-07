@@ -6,6 +6,7 @@ public class ErrorResult extends Result {
 
     public ErrorResult(String message) {
         super(false, message);
+
         WarningWindowController.warningMessage(message);
     }
 
