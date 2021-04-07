@@ -2,12 +2,8 @@ package goksoft.chat.app;
 
 import javafx.animation.*;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,23 +16,17 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextBoundsType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class Function {
 
@@ -360,8 +350,7 @@ public class Function {
                 Platform.runLater(() -> usersVBox.getChildren().clear());
                 //Create box for each possible user and add it to list.
                 for(int i = 0; i<jsonArray.size(); i++){
-                    int finalI = i;
-                    String username = jsonArray.get(finalI).toString();
+                    String username = jsonArray.get(i).toString();
                     Platform.runLater(() -> usersVBox.getChildren().add(0,GUIComponents.userBox(username)));
                 }
                 checkNoResult(stringArray,noUserLabel);
@@ -450,9 +439,9 @@ public class Function {
             GlobalVariables.setIsThread(false);
             File file = new File(System.getProperty("user.home") + "/settings.txt");
             if(file.exists()){
-                //FileWriter writer = new FileWriter(file);
-                //writer.write("");
-                //writer.close();
+                FileWriter writer = new FileWriter(file);
+                writer.write("");
+                writer.close();
             }
             newWindow.setOnCloseRequest(windowEvent -> System.exit(0));
         } catch (IOException e) {
