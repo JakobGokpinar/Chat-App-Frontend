@@ -8,6 +8,7 @@ public class ErrorResult extends Result {
         super(false, message);
 
         WarningWindowController.warningMessage(message);
+        System.out.println("Branch1");
     }
 
     public ErrorResult() {
