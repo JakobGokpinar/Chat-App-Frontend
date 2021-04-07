@@ -7,6 +7,7 @@ public class ErrorResult extends Result {
     public ErrorResult(String message) {
         super(false, message);
         WarningWindowController.warningMessage(message);
+        System.out.println("new branch2");
     }
 
     public ErrorResult() {
