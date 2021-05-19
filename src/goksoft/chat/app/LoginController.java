@@ -1,8 +1,8 @@
 package goksoft.chat.app;
 
-import goksoft.chat.app.ErrorClass.ErrorResult;
-import goksoft.chat.app.ErrorClass.Result;
-import goksoft.chat.app.ErrorClass.SuccessResult;
+import goksoft.chat.app.errorClass.ErrorResult;
+import goksoft.chat.app.errorClass.Result;
+import goksoft.chat.app.errorClass.SuccessResult;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

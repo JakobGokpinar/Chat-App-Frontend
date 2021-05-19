@@ -1,4 +1,4 @@
-package goksoft.chat.app.ErrorClass;
+package goksoft.chat.app.errorClass;
 
 public class Result {
     public String _message;

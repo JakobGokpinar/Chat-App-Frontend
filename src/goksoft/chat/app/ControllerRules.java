@@ -1,6 +1,6 @@
 package goksoft.chat.app;
 
-import goksoft.chat.app.ErrorClass.Result;
+import goksoft.chat.app.errorClass.Result;
 
 public class ControllerRules {
     public static Result Run(Result... logics){

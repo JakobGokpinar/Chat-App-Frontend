@@ -1,4 +1,4 @@
-package goksoft.chat.app.ErrorClass;
+package goksoft.chat.app.errorClass;
 
 import goksoft.chat.app.WarningWindowController;
 
