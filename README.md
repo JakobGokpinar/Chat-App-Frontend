@@ -35,6 +35,47 @@ This is a messaging application built with Java and JavaFX. Users can register t
 - Java
 - JavaFX
 
+## Project Structure
+```sh
+└── Chat-App-Frontend/
+    ├── README.md
+    ├── chatapp.iml
+    ├── out
+    │   ├── artifacts
+    │   │   ├── chatapp_jar
+    │   │   │   └── chatapp.jar
+    │   │   └── chatapplication
+    │   │       └── chatapplication.jar
+    │   └── production
+    │       └── chatapp
+    │           ├── META-INF
+    │           │   └── MANIFEST.MF
+    │           └── goksoft
+    │               └── chat
+    └── src
+        ├── META-INF
+        │   └── MANIFEST.MF
+        └── goksoft
+            └── chat
+                └── app
+                    ├── ContactPanelController.java
+                    ├── ControllerRules.java
+                    ├── ErrorClass
+                    ├── Function.java
+                    ├── GUIComponents.java
+                    ├── GlobalVariables.java
+                    ├── Launcher.java
+                    ├── LoginController.java
+                    ├── Main.java
+                    ├── MainPanelController.java
+                    ├── RegisterController.java
+                    ├── ServerFunctions.java
+                    ├── WarningWindowController.java
+                    ├── images
+                    ├── stylesheets
+                    └── userinterfaces
+```
+
 ## Project Setup and Installation
 
 ### Prerequisites
