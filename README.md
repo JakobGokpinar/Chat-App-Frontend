@@ -1,3 +1,15 @@
+<p align="center">
+    <img src="https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/ec559a9f6bfd399b82bb44393651661b08aaf7ba/icons/folder-markdown-open.svg" align="center" width="30%">
+</p>
+<p align="center"><h1 align="center">CHAT-APP-FRONTEND</h1></p>
+<p align="center">
+	<img src="https://img.shields.io/github/license/JakobGokpinar/Chat-App-Frontend?style=default&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
+	<img src="https://img.shields.io/github/last-commit/JakobGokpinar/Chat-App-Frontend?style=default&logo=git&logoColor=white&color=0080ff" alt="last-commit">
+	<img src="https://img.shields.io/github/languages/top/JakobGokpinar/Chat-App-Frontend?style=default&color=0080ff" alt="repo-top-language">
+	<img src="https://img.shields.io/github/languages/count/JakobGokpinar/Chat-App-Frontend?style=default&color=0080ff" alt="repo-language-count">
+</p>
+<br>
+
 # Chat App Frontend
 
 This is a messaging application built with Java and JavaFX. Users can register themselves and add their friends on the platform, exactly like any other messaging app like WhatsApp and Messenger. This repository contains the frontend code of the application, aimed for desktop usage purposes.
