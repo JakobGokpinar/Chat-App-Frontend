@@ -22,7 +22,6 @@ This is a messaging application built with Java and JavaFX. Users can register t
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact Information](#contact-information)
-- [Screenshots](#screenshots)
 
 ## Features
 - User Registration and Login
@@ -111,4 +110,4 @@ Contributions are welcome! Please follow these steps to contribute:
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Contact Information
-For any questions or support, please contact JakobGokpinar at [your-email@example.com](mailto:your-email@example.com).
+For any questions or support, please send an email to my address.
