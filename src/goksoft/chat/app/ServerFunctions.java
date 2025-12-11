@@ -14,8 +14,9 @@ public class ServerFunctions {
 
     //The server URL to which all the server requests will be sent.
     static final String serverURL =
-            "https://calm-mountain-05477.herokuapp.com/"
+            //"https://calm-mountain-05477.herokuapp.com/"
             //"http://localhost/"
+            "http://localhost:8888/Chat-App-Backend/"
             //"http://goksoft.tk/GokSoft%20Chat%20App%20Background"
             ;
 

@@ -34,6 +34,10 @@ public class LoginController{
 
     @FXML
     public void initialize() throws FileNotFoundException {
+        //default login user
+        usernameField.setText("jakob");
+        passwordField.setText("1234");
+
         //Login by pressing enter
         usernameField.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) signIn();

@@ -14,6 +14,17 @@
 
 This is a messaging application built with Java and JavaFX. Users can register themselves and add their friends on the platform, exactly like any other messaging app like WhatsApp and Messenger. This repository contains the frontend code of the application, aimed for desktop usage purposes.
 
+## Screenshots
+
+### Login Screen
+![Login Screen](src/goksoft/chat/app/images/ss/login-screen.png)
+
+### Main Chat Interface
+![Main Chat](src/goksoft/chat/app/images/ss/main-chat.png)
+
+### Settings
+![Settings](src/goksoft/chat/app/images/ss/settings.png)
+
 ## Table of Contents
 - [Features](#features)
 - [Technologies Used](#technologies-used)
