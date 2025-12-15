@@ -10,8 +10,24 @@
 </p>
 <br>
 
-# Chat App Frontend
+## Chat App Frontend
 
+# ⚠️ ARCHIVED - Legacy Frontend
+
+> **This repository is archived and maintained for historical reference only.**
+> 
+> **🚀 For the active, modernized version, see:** [Java-ChatApp](https://github.com/JakobGokpinar/Java-ChatApp)
+> 
+> This legacy frontend connects to the old PHP backend. The new version includes:
+> - Modern Spring Boot REST API integration
+> - Improved code structure
+> - Better dependency management
+> - Active development and improvements
+> 
+> ---
+> 
+
+### Original README (JavaFX Frontend - 2020)
 This is a messaging application built with Java and JavaFX. Users can register themselves and add their friends on the platform, exactly like any other messaging app like WhatsApp and Messenger. This repository contains the frontend code of the application, aimed for desktop usage purposes.
 
 ## Screenshots
