@@ -61,10 +61,12 @@ public class RegisterController{
         if(result != null){
             return result;
         }
+        String regUrl = "/register.php"; // /register.php
+        String url = ServerFunctions.serverURL + regUrl;
 
         String name = ServerFunctions.encodeURL(usernameField.getText());
         String pass = ServerFunctions.encodeURL(password1Field.getText());
-        String response = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/register.php", "username=" + name + "&password=" + pass);
+        String response = ServerFunctions.HTMLRequest(url, "username=" + name + "&password=" + pass);
         System.out.println(response);
 
         return CheckRegisterIsSuccessful(response);

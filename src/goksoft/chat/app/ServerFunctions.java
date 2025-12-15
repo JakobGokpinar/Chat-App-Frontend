@@ -17,7 +17,7 @@ public class ServerFunctions {
             //"https://calm-mountain-05477.herokuapp.com/"
             //"http://localhost/"
             "http://localhost:8888/Chat-App-Backend/"
-            //"http://goksoft.tk/GokSoft%20Chat%20App%20Background"
+            //"http://localhost:8080/api"
             ;
 
     //Makes a string more proper and secure for URLs.

@@ -89,12 +89,16 @@ public class LoginController{
                     line = scanner.nextLine();
                     if (line.contains("username:")){
                         String[] user = line.split(":");
-                        setUsernameField(user[1]);
+                        if (user.length > 2){
+                            setUsernameField(user[1]);
+                        }
                         line = scanner.nextLine();
                         if (line.contains("pass:")){
                             user = line.split(":");
-                            setPasswordField(user[1]);
-                            rememberMeButton.setSelected(true);
+                            if (user.length > 2){
+                                setPasswordField(user[1]);
+                                rememberMeButton.setSelected(true);
+                            }
                         }
                     }
                 }
@@ -125,8 +129,10 @@ public class LoginController{
         String name = ServerFunctions.encodeURL(usernameField.getText());
         String pass = ServerFunctions.encodeURL(passwordField.getText());
 
+        String loginUrl = "/login.php"; // /login.php
+        String url = ServerFunctions.serverURL + loginUrl;
         //Send request to server with parameters.
-        String cevap = ServerFunctions.HTMLRequest(ServerFunctions.serverURL + "/login.php", "username=" + name + "&password=" + pass);
+        String cevap = ServerFunctions.HTMLRequest(url, "username=" + name + "&password=" + pass);
         System.out.println(cevap);
 
         //Check the response if it is successful
